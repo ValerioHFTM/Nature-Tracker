@@ -1,4 +1,4 @@
-import 'package:smart_trash/models/trash_bin.dart';
+import 'package:nature_tracker/models/trash_bin.dart';
 
 class Group {
   final String name;

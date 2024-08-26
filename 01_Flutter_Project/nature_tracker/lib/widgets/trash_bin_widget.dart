@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:smart_trash/models/trash_bin.dart';
-import 'package:smart_trash/models/app_colors.dart';
+import 'package:nature_tracker/models/trash_bin.dart';
+import 'package:nature_tracker/models/app_colors.dart';
 
 class TrashBinWidget extends StatelessWidget {
   final TrashBin bin;
   final VoidCallback onTap;
 
-  TrashBinWidget({required this.bin, required this.onTap});
+  const TrashBinWidget({super.key, required this.bin, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class TrashBinWidget extends StatelessWidget {
               color: AppColors.color3.withOpacity(0.2),
               spreadRadius: 2,
               blurRadius: 5,
-              offset: Offset(0, 3),
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -39,16 +39,16 @@ class TrashBinWidget extends StatelessWidget {
                 children: [
                   Text(
                     bin.name,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 24,
                       color: AppColors.color5,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Text(
                     bin.isFull ? 'Full' : 'Empty',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18,
                       color: AppColors.color5,
                     ),
@@ -66,11 +66,11 @@ class TrashBinWidget extends StatelessWidget {
               bottom: 10,
               left: 10,
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 4.0),
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
                 color: Colors.black.withOpacity(0.6),
                 child: Text(
                   truncatedGroupName,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: AppColors.color5,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -87,16 +87,16 @@ class TrashBinWidget extends StatelessWidget {
   Widget _getCategoryIcon(String category) {
     switch (category) {
       case 'PET':
-        return Icon(Icons.local_drink, color: Colors.blue, size: 30);
+        return const Icon(Icons.local_drink, color: Colors.blue, size: 30);
       case 'ALU':
-        return Icon(Icons.category, color: Colors.grey, size: 30);
+        return const Icon(Icons.category, color: Colors.grey, size: 30);
       case 'MISC':
-        return Icon(Icons.miscellaneous_services,
+        return const Icon(Icons.miscellaneous_services,
             color: Colors.orange, size: 30);
       case 'Compost':
-        return Icon(Icons.nature, color: Colors.green, size: 30);
+        return const Icon(Icons.nature, color: Colors.green, size: 30);
       default:
-        return Icon(Icons.help, color: Colors.red, size: 30);
+        return const Icon(Icons.help, color: Colors.red, size: 30);
     }
   }
 }

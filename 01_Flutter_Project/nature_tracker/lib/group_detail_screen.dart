@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:smart_trash/main_screen.dart';
-import 'package:smart_trash/models/app_colors.dart';
+import 'package:nature_tracker/main_screen.dart';
+import 'package:nature_tracker/models/app_colors.dart';
 
 class GroupDetailScreen extends StatelessWidget {
   final Group group;
 
-  GroupDetailScreen({required this.group});
+  const GroupDetailScreen({super.key, required this.group});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class GroupDetailScreen extends StatelessWidget {
                 elevation: 6.0, // Light shadow
                 centerTitle: true, // Center the title widget
                 leading: IconButton(
-                  icon: Icon(Icons.arrow_back,
+                  icon: const Icon(Icons.arrow_back,
                       color: AppColors.color1), // Yellow return button
                   onPressed: () {
                     Navigator.of(context)
@@ -48,21 +48,21 @@ class GroupDetailScreen extends StatelessWidget {
               Expanded(
                 child: GridView.builder(
                   padding: const EdgeInsets.all(10.0),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 10.0,
                     mainAxisSpacing: 10.0,
                   ),
-                  itemCount: group.trashBins.length,
+                  itemCount: group.myBlogs.length,
                   itemBuilder: (context, index) {
-                    final bin = group.trashBins[index];
+                    final blog = group.myBlogs[index];
                     return GestureDetector(
                       onTap: () {
                         // Handle toggle status or other actions here
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                          color: bin.isFull
+                          color: blog.isFull
                               ? AppColors.redColor
                               : AppColors
                                   .greenColor, // Use defined colors for full/empty
@@ -80,16 +80,16 @@ class GroupDetailScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              bin.name,
-                              style: TextStyle(
+                              blog.name,
+                              style: const TextStyle(
                                   fontSize: 24,
                                   color: Colors
                                       .white), // Keep white text for contrast
                             ),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                             Text(
-                              bin.isFull ? 'Full' : 'Empty',
-                              style: TextStyle(
+                              blog.isFull ? 'Full' : 'Empty',
+                              style: const TextStyle(
                                   fontSize: 18,
                                   color: Colors
                                       .white), // Keep white text for contrast
@@ -105,12 +105,12 @@ class GroupDetailScreen extends StatelessWidget {
               Container(
                 color: AppColors
                     .color3, // Use color3 for the bottom bar background
-                padding:
-                    EdgeInsets.all(10.0), // Add some padding around the text
+                padding: const EdgeInsets.all(
+                    10.0), // Add some padding around the text
                 child: Center(
                   child: Text(
                     group.name,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: AppColors.color5, // Use color5 for the text
                       fontSize: 18, // Adjust font size as needed
                       fontWeight: FontWeight.bold, // Bold text for emphasis

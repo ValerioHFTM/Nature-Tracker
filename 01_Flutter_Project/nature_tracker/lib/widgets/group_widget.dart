@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:smart_trash/models/group.dart';
-import 'package:smart_trash/models/app_colors.dart';
+import 'package:nature_tracker/models/group.dart';
+import 'package:nature_tracker/models/app_colors.dart';
 
 class GroupWidget extends StatelessWidget {
   final Group group;

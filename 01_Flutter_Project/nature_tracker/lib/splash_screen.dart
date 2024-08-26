@@ -3,6 +3,8 @@ import 'package:nature_tracker/main_screen.dart';
 import 'package:nature_tracker/models/app_colors.dart';
 
 class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -13,7 +15,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
 
     // Delay of 5 seconds and navigate to the MainScreen
-    Future.delayed(Duration(seconds: 5), () {
+    Future.delayed(const Duration(seconds: 5), () {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => MainScreen()),
       );
@@ -33,13 +35,13 @@ class _SplashScreenState extends State<SplashScreen> {
               height: 500.0, // Adjust size as needed
               width: 500.0, // Adjust size as needed
             ),
-            SizedBox(height: 20),
-            CircularProgressIndicator(
+            const SizedBox(height: 20),
+            const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(
                   AppColors.color4), // Change color here
             ),
-            SizedBox(height: 20),
-            Text(
+            const SizedBox(height: 20),
+            const Text(
               'Verbindung wird hergestellt...',
               style: TextStyle(
                 fontSize: 16,

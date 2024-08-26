@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart'; // For generating unique IDs
-import 'package:smart_trash/group_detail_screen.dart';
-import 'package:smart_trash/models/app_colors.dart';
-//import 'package:flutter_svg/flutter_svg.dart';
+import 'package:nature_tracker/group_detail_screen.dart';
+import 'package:nature_tracker/models/app_colors.dart';
+import 'package:nature_tracker/widgets/floating_action_button_widget.dart';
 
 class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
   @override
   _MainScreenState createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
-  List<TrashBin> _trashBins = [];
+  List<MyBlog> _myBlogs = [];
   final List<String> _categories = ['PET', 'ALU', 'MISC', 'Compost'];
   final List<Group> _groups = [];
 
@@ -24,18 +26,18 @@ class _MainScreenState extends State<MainScreen> {
   void _initializeGroups() {
     final demoGroup = Group(name: 'Demo Group ');
 
-    final demoTrash = TrashBin(
-      name: 'Demo Trash',
-      id: Uuid().v4(),
+    final demoMyBlog = MyBlog(
+      name: 'Demo Blog',
+      id: const Uuid().v4(),
       groupName: demoGroup.name,
       category: 'MISC', // Set a default category
     );
 
-    demoGroup.trashBins.add(demoTrash);
+    demoGroup.myBlogs.add(demoMyBlog);
 
     setState(() {
       _groups.add(demoGroup);
-      _trashBins.add(demoTrash);
+      _myBlogs.add(demoMyBlog);
     });
   }
 
@@ -45,15 +47,9 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  void _toggleBinStatus(TrashBin bin) {
+  void _toggleBlogStatus(MyBlog blog) {
     setState(() {
-      bin.isFull = !bin.isFull;
-    });
-  }
-
-  void _refreshUI() {
-    setState(() {
-      // No state changes here, just triggering a rebuild
+      blog.isFull = !blog.isFull;
     });
   }
 
@@ -92,7 +88,12 @@ class _MainScreenState extends State<MainScreen> {
                     ? _buildOverview()
                     : _buildNetwork(context),
               ),
-              _buildFloatingActionButton(),
+              //use of the floating_action_button_widget.dart
+              FloatingActionButtonWidget(
+                selectedIndex: _selectedIndex,
+                showAddBlogDialog: _showAddBlogDialog,
+                showAddGroupDialog: _showAddGroupDialog,
+              ),
               BottomNavigationBar(
                 currentIndex: _selectedIndex,
                 onTap: _onItemTapped,
@@ -120,64 +121,35 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _buildFloatingActionButton() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0), // Adjust padding for bottom
-      child: Container(
-        width: 200, // Fixed width for uniform button size
-        child: ElevatedButton.icon(
-          onPressed:
-              _selectedIndex == 0 ? _showAddBinDialog : _showAddGroupDialog,
-          icon: Icon(
-            Icons.add,
-            color: AppColors.color1, // Set icon color to color1
-          ),
-          label: Text(
-            _selectedIndex == 0 ? "Add New Bin" : "Add New Group",
-            textAlign: TextAlign.left, // Align text to the left
-            style: TextStyle(
-              fontSize: 18,
-              color: AppColors.color5, // Set text color to color5
-            ),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor:
-                AppColors.color3, // Use color3 for the button background
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildOverview() {
     return GridView.builder(
       padding: const EdgeInsets.all(10.0),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 10.0,
         mainAxisSpacing: 10.0,
       ),
-      itemCount: _trashBins.length,
+      itemCount: _myBlogs.length,
       itemBuilder: (context, index) {
-        final bin = _trashBins[index];
-        final truncatedGroupName = bin.groupName.length > 12
-            ? '${bin.groupName.substring(0, 12)}...'
-            : bin.groupName;
+        final blog = _myBlogs[index];
+        final truncatedGroupName = blog.groupName.length > 12
+            ? '${blog.groupName.substring(0, 12)}...'
+            : blog.groupName;
 
         return GestureDetector(
-          onTap: () => _toggleBinStatus(bin),
-          onLongPress: () => _showEditBinDialog(bin), // Long press for editing
+          onTap: () => _toggleBlogStatus(blog),
+          onLongPress: () =>
+              _showEditBlogDialog(blog), // Long press for editing
           child: Container(
             decoration: BoxDecoration(
-              color: bin.isFull ? AppColors.redColor : AppColors.greenColor,
+              color: blog.isFull ? AppColors.redColor : AppColors.greenColor,
               borderRadius: BorderRadius.circular(8.0),
               boxShadow: [
                 BoxShadow(
                   color: AppColors.color3.withOpacity(0.2),
                   spreadRadius: 2,
                   blurRadius: 5,
-                  offset: Offset(0, 3),
+                  offset: const Offset(0, 3),
                 ),
               ],
             ),
@@ -190,17 +162,17 @@ class _MainScreenState extends State<MainScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        bin.name,
-                        style: TextStyle(
+                        blog.name,
+                        style: const TextStyle(
                           fontSize: 24,
                           color: AppColors.color5,
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Text(
-                        bin.isFull ? 'Full' : 'Empty',
-                        style: TextStyle(
+                        blog.isFull ? 'Full' : 'Empty',
+                        style: const TextStyle(
                           fontSize: 18,
                           color: AppColors.color5,
                         ),
@@ -213,11 +185,11 @@ class _MainScreenState extends State<MainScreen> {
                   bottom: 10,
                   right: 10,
                   child: Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 6.0, vertical: 4.0),
                     child: Text(
-                      bin.category,
-                      style: TextStyle(
+                      blog.category,
+                      style: const TextStyle(
                         color: AppColors.color5,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -229,11 +201,11 @@ class _MainScreenState extends State<MainScreen> {
                   bottom: 10,
                   left: 10,
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 4.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
                     color: Colors.black.withOpacity(0.6),
                     child: Text(
                       truncatedGroupName,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: AppColors.color5,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -249,21 +221,21 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  void _deleteBin(TrashBin bin) {
+  void _deleteBlog(MyBlog blog) {
     setState(() {
-      _trashBins.removeWhere((b) => b.id == bin.id);
+      _myBlogs.removeWhere((b) => b.id == blog.id);
       _groups
-          .firstWhere((group) => group.name == bin.groupName)
-          .trashBins
-          .remove(bin);
+          .firstWhere((group) => group.name == blog.groupName)
+          .myBlogs
+          .remove(blog);
     });
   }
 
-  void _showEditBinDialog(TrashBin bin) {
+  void _showEditBlogDialog(MyBlog blog) {
     TextEditingController nameController =
-        TextEditingController(text: bin.name);
-    String updatedCategory = bin.category;
-    String updatedGroup = bin.groupName;
+        TextEditingController(text: blog.name);
+    String updatedCategory = blog.category;
+    String updatedGroup = blog.groupName;
 
     final focusNode = FocusNode();
 
@@ -276,7 +248,7 @@ class _MainScreenState extends State<MainScreen> {
               backgroundColor:
                   AppColors.color3, // Background color set to color3
               title: const Text(
-                'Edit Bin',
+                'Edit Blog',
                 style: TextStyle(
                     color: AppColors.color1), // Title color set to color1
               ),
@@ -287,8 +259,8 @@ class _MainScreenState extends State<MainScreen> {
                     controller: nameController,
                     cursorColor: AppColors.color1, // Set cursor color
                     focusNode: focusNode,
-                    decoration: InputDecoration(
-                      labelText: 'Bin Name',
+                    decoration: const InputDecoration(
+                      labelText: 'Blog Name',
                       labelStyle:
                           TextStyle(color: AppColors.color1), // Label color
                       enabledBorder: UnderlineInputBorder(
@@ -396,9 +368,9 @@ class _MainScreenState extends State<MainScreen> {
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      bin.name = nameController.text;
-                      bin.category = updatedCategory;
-                      bin.groupName = updatedGroup;
+                      blog.name = nameController.text;
+                      blog.category = updatedCategory;
+                      blog.groupName = updatedGroup;
                     });
                     Navigator.of(context).pop();
                   },
@@ -414,7 +386,7 @@ class _MainScreenState extends State<MainScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    _deleteBin(bin);
+                    _deleteBlog(blog);
                     Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
@@ -435,23 +407,6 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _getCategoryIcon(String category) {
-    switch (category) {
-      case 'PET':
-        return Icon(Icons.local_drink, color: Colors.blue, size: 30);
-      case 'ALU':
-        return Icon(Icons.category, color: Colors.grey, size: 30);
-      case 'MISC':
-        return Icon(Icons.miscellaneous_services,
-            color: Colors.orange, size: 30);
-      case 'Compost':
-        return Icon(Icons.nature, color: Colors.green, size: 30);
-      default:
-        return Icon(Icons.help,
-            color: Colors.red, size: 30); // Default icon for unknown categories
-    }
-  }
-
   Widget _buildNetwork(BuildContext context) {
     return Column(
       children: [
@@ -461,15 +416,13 @@ class _MainScreenState extends State<MainScreen> {
             itemCount: _groups.length,
             itemBuilder: (context, index) {
               final group = _groups[index];
-              // Determine the background color based on bin status
-              final bool hasFullBin = group.isAnyBinFull();
-              final Color backgroundColor = hasFullBin
-                  ? AppColors.redColor // Set to red if any bin is full
-                  : AppColors.greenColor; // Set to green if all bins are empty
+              final bool hasFullBlog = group.isAnyBlogFull();
+              final Color backgroundColor =
+                  hasFullBlog ? AppColors.redColor : AppColors.greenColor;
 
               return Container(
-                margin:
-                    EdgeInsets.symmetric(vertical: 5.0), // Space between items
+                margin: const EdgeInsets.symmetric(
+                    vertical: 5.0), // Space between items
                 decoration: BoxDecoration(
                   color: backgroundColor, // Apply the background color
                   borderRadius: BorderRadius.circular(10.0), // Rounded corners
@@ -478,22 +431,22 @@ class _MainScreenState extends State<MainScreen> {
                       color: Colors.black.withOpacity(0.2),
                       spreadRadius: 2,
                       blurRadius: 5,
-                      offset: Offset(0, 3),
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
                 child: ListTile(
-                  contentPadding: EdgeInsets.symmetric(
+                  contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16.0,
                       vertical: 12.0), // Padding inside the tile
                   title: Text(
                     group.name,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 22,
                       color: AppColors.color2,
                     ), // Use color2 for group text
                   ),
-                  trailing: Icon(
+                  trailing: const Icon(
                     Icons.chevron_right,
                     color: AppColors.color2,
                   ), // Use color2 for trailing icon
@@ -524,9 +477,9 @@ class _MainScreenState extends State<MainScreen> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: AppColors.color3, // Set background color to color3
-          title: Text(
+          title: const Text(
             'Add New Group',
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.color1, // Set title color to color1
             ),
           ),
@@ -589,7 +542,7 @@ class _MainScreenState extends State<MainScreen> {
                   Navigator.of(context).pop();
                 }
               },
-              child: Text(
+              child: const Text(
                 'Add',
                 style: TextStyle(
                   color:
@@ -603,8 +556,8 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  void _showAddBinDialog() {
-    String binName = '';
+  void _showAddBlogDialog() {
+    String blogName = '';
     String selectedGroup = _groups.isNotEmpty ? _groups[0].name : '';
     String selectedCategory = 'MISC'; // Default category
 
@@ -613,8 +566,8 @@ class _MainScreenState extends State<MainScreen> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: AppColors.color3, // Background color set to color3
-          title: Text(
-            'Add Trash Bin',
+          title: const Text(
+            'Add New Blog',
             style: TextStyle(
               color: AppColors.color1, // Title color set to color1
             ),
@@ -639,15 +592,15 @@ class _MainScreenState extends State<MainScreen> {
                             .color1), // Line color when focused set to color1
                   ),
                 ),
-                style: TextStyle(
+                style: const TextStyle(
                   color: AppColors.color4, // Input text color set to color4
                 ),
                 onChanged: (value) {
-                  binName = value;
+                  blogName = value;
                 },
               ),
               DropdownButtonFormField<String>(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Group',
                   labelStyle: TextStyle(
                     color: AppColors.color1, // Label color set to color1
@@ -670,7 +623,7 @@ class _MainScreenState extends State<MainScreen> {
                     value: group.name,
                     child: Text(
                       group.name,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: AppColors
                             .color4, // Dropdown item text color set to color4
                       ),
@@ -683,7 +636,7 @@ class _MainScreenState extends State<MainScreen> {
                 iconEnabledColor: AppColors.color1, // Arrow color set to color1
               ),
               DropdownButtonFormField<String>(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Category',
                   labelStyle: TextStyle(
                     color: AppColors.color1, // Label color set to color1
@@ -706,7 +659,7 @@ class _MainScreenState extends State<MainScreen> {
                     value: category,
                     child: Text(
                       category,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: AppColors
                             .color4, // Dropdown item text color set to color4
                       ),
@@ -723,7 +676,7 @@ class _MainScreenState extends State<MainScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text(
+              child: const Text(
                 'Cancel',
                 style: TextStyle(
                   color: AppColors
@@ -733,26 +686,26 @@ class _MainScreenState extends State<MainScreen> {
             ),
             TextButton(
               onPressed: () {
-                if (binName.isNotEmpty && selectedGroup.isNotEmpty) {
-                  final newBin = TrashBin(
-                    name: binName,
-                    id: Uuid().v4(),
+                if (blogName.isNotEmpty && selectedGroup.isNotEmpty) {
+                  final newBlog = MyBlog(
+                    name: blogName,
+                    id: const Uuid().v4(),
                     groupName: selectedGroup,
                     category: selectedCategory,
                   );
 
                   setState(() {
-                    _trashBins.add(newBin);
+                    _myBlogs.add(newBlog);
                     _groups
                         .firstWhere((group) => group.name == selectedGroup)
-                        .trashBins
-                        .add(newBin);
+                        .myBlogs
+                        .add(newBlog);
                   });
 
                   Navigator.of(context).pop();
                 }
               },
-              child: Text(
+              child: const Text(
                 'Add',
                 style: TextStyle(
                   color:
@@ -767,14 +720,14 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-class TrashBin {
+class MyBlog {
   final String id;
   String name;
   String groupName;
   String category; // Add this field
   bool isFull;
 
-  TrashBin({
+  MyBlog({
     required this.id,
     required this.name,
     required this.groupName,
@@ -785,12 +738,11 @@ class TrashBin {
 
 class Group {
   final String name;
-  final List<TrashBin> trashBins;
+  final List<MyBlog> myBlogs;
 
-  Group({required this.name}) : trashBins = [];
+  Group({required this.name}) : myBlogs = [];
 
-  // Method to check if any trash bin in the group is full
-  bool isAnyBinFull() {
-    return trashBins.any((bin) => bin.isFull);
+  bool isAnyBlogFull() {
+    return myBlogs.any((blog) => blog.isFull);
   }
 }
