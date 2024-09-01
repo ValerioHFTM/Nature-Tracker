@@ -8,6 +8,7 @@ class MyBlog {
   int altitude;
   int distance;
   bool liked;
+  bool isCounting;
   List<String>? imageUrls; // Add this line to hold image URLs
 
   MyBlog({
@@ -20,6 +21,7 @@ class MyBlog {
     this.altitude = 0,
     this.distance = 5000,
     this.liked = false,
+    this.isCounting = false,
     List<String>? imageUrls, // Allow null to use default
   }) : imageUrls = imageUrls ?? []; // Initialize with an empty list if null
 }

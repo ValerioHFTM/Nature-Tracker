@@ -67,5 +67,8 @@ During this working period I also implemented a Sidebar with a Dummy login Scree
 Second Sensor i wanted to integrate was teh Pedometer. For now it only takes the total steps of the day and does not rly count them itself.
 So on the Android Emulator it does not have any data but on my phone it works and it takes the current footsteps of the day.
 
+#3 Google Maps and Picture Imporvement
 
+I improved the picture handling. now the Content is displayed much nicer with the picture worked in.
+The Google Maps should also work but man thats complicated so i try to finish this in the next step.
 

@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io'; // Import to handle File
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -7,6 +7,8 @@ import 'package:nature_tracker/models/app_colors.dart';
 import 'package:nature_tracker/models/my_blog.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class BlogScreen extends StatefulWidget {
   const BlogScreen({super.key, required this.blog});
@@ -18,12 +20,39 @@ class BlogScreen extends StatefulWidget {
 
 class _BlogScreenState extends State<BlogScreen> {
   bool _isMenuOpen = false;
-  bool _isCountingSteps = false;
+  late bool _isCountingSteps;
+  bool _isEditing = false;
   int _steps = 0;
   List<String> _imageUrls = [];
-
+  Position? _currentPosition;
+  late GoogleMapController? _mapController;
   final ImagePicker _picker = ImagePicker();
-  late StreamSubscription<StepCount> _stepCountSubscription;
+  StreamSubscription<StepCount>? _stepCountSubscription;
+  late TextEditingController _titleController;
+  late TextEditingController _categoryController;
+  late TextEditingController _contentController;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(text: widget.blog.title);
+    _categoryController = TextEditingController(text: widget.blog.category);
+    _contentController = TextEditingController(text: widget.blog.content);
+    _isCountingSteps = widget.blog.isCounting;
+
+    if (_isCountingSteps) {
+      _startCountingSteps();
+    }
+  }
+
+  @override
+  void dispose() {
+    _stopCountingSteps();
+    _titleController.dispose();
+    _categoryController.dispose();
+    _contentController.dispose();
+    super.dispose();
+  }
 
   void _toggleMenu() {
     setState(() {
@@ -31,12 +60,22 @@ class _BlogScreenState extends State<BlogScreen> {
     });
   }
 
+  Future<void> _requestLocationPermissions() async {
+    final permissionStatus = await Permission.location.request();
+    if (!permissionStatus.isGranted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Location permission is required.'),
+        ),
+      );
+    }
+  }
+
   Future<void> _requestPermissions() async {
     final status = await Permission.activityRecognition.request();
     if (!status.isGranted) {
-      // Handle permission denial
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Activity recognition permission is required.'),
         ),
       );
@@ -51,6 +90,7 @@ class _BlogScreenState extends State<BlogScreen> {
       } else {
         _stopCountingSteps();
       }
+      widget.blog.isCounting = _isCountingSteps;
     });
   }
 
@@ -73,7 +113,6 @@ class _BlogScreenState extends State<BlogScreen> {
           });
         },
         onError: (error) {
-          // Handle any errors from the stream
           print('Error in step count stream: $error');
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -82,7 +121,6 @@ class _BlogScreenState extends State<BlogScreen> {
           );
         },
         onDone: () {
-          // Handle stream completion
           print('Step count stream closed');
         },
       );
@@ -97,17 +135,149 @@ class _BlogScreenState extends State<BlogScreen> {
   }
 
   void _stopCountingSteps() {
-    _stepCountSubscription.cancel();
+    if (_stepCountSubscription != null) {
+      _stepCountSubscription!.cancel();
+      _stepCountSubscription = null; // Ensure subscription is reset
+    }
   }
 
-  @override
-  void dispose() {
-    _stepCountSubscription.cancel();
-    super.dispose();
+  void _toggleEditing() {
+    setState(() {
+      _isEditing = !_isEditing;
+      if (!_isEditing) {
+        widget.blog.title = _titleController.text;
+        widget.blog.category = _categoryController.text;
+        widget.blog.content = _contentController.text;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Changes saved!'),
+          ),
+        );
+      }
+    });
+  }
+
+  // Function to show the enlarged image in a dialog
+  void _showImageDialog(BuildContext context, File image) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: AppColors.color2, // Set the background color
+          child: Stack(
+            children: [
+              Center(
+                child: Image.file(
+                  image,
+                  fit: BoxFit.contain,
+                  height: MediaQuery.of(context).size.height * 0.95,
+                ),
+              ),
+              Positioned(
+                top: 8.0,
+                right: 8.0,
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _getLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Location services are disabled.'),
+        ),
+      );
+      return;
+    }
+
+    await _requestLocationPermissions(); // Ensure permissions are requested
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    setState(() {
+      _currentPosition = position;
+    });
+
+    // Check if _mapController is null before using it
+    if (_mapController != null && _currentPosition != null) {
+      _mapController?.animateCamera(
+        CameraUpdate.newLatLng(
+          LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+        ),
+      );
+    }
+  }
+
+  void _showMapDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: AppColors.color2, // Set the background color
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.4,
+            width: MediaQuery.of(context).size.width * 0.9,
+            child: GoogleMap(
+              initialCameraPosition: CameraPosition(
+                target: LatLng(
+                    _currentPosition!.latitude, _currentPosition!.longitude),
+                zoom: 15,
+              ),
+              onMapCreated: (controller) {
+                _mapController = controller;
+              },
+              markers: {
+                Marker(
+                  markerId: const MarkerId('current_location'),
+                  position: LatLng(
+                      _currentPosition!.latitude, _currentPosition!.longitude),
+                  infoWindow: const InfoWindow(title: 'Current Location'),
+                ),
+              },
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    List<String> _splitContent(String content, int maxSentences) {
+      final sentences = content.split(RegExp(r'(?<=[.!?])\s+'));
+      final chunks = <String>[];
+      for (var i = 0; i < sentences.length; i += maxSentences) {
+        final chunk = sentences
+            .sublist(
+                i,
+                i + maxSentences > sentences.length
+                    ? sentences.length
+                    : i + maxSentences)
+            .join(' ');
+        chunks.add(chunk);
+      }
+      return chunks;
+    }
+
+    final contentChunks = _splitContent(widget.blog.content, 4);
+    final firstImage = _imageUrls.isNotEmpty ? File(_imageUrls.first) : null;
+    final lastImage = _imageUrls.length > 1 ? File(_imageUrls.last) : null;
+    final middleImages = _imageUrls.length > 2
+        ? _imageUrls.sublist(1, _imageUrls.length - 1)
+        : [];
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Stack(
@@ -150,7 +320,7 @@ class _BlogScreenState extends State<BlogScreen> {
                           color: Colors.black.withOpacity(0.2),
                           spreadRadius: 2,
                           blurRadius: 5,
-                          offset: Offset(0, 3),
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
@@ -159,39 +329,127 @@ class _BlogScreenState extends State<BlogScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            widget.blog.title,
-                            style: const TextStyle(
-                              fontSize: 24.0,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                          if (_isEditing)
+                            TextFormField(
+                              controller: _titleController,
+                              decoration: const InputDecoration(
+                                labelText: 'Title',
+                                labelStyle: TextStyle(
+                                  color: Colors.black,
+                                ),
+                                border: OutlineInputBorder(),
+                              ),
+                              style: const TextStyle(
+                                fontSize: 24.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter a title';
+                                }
+                                return null;
+                              },
+                            )
+                          else
+                            Text(
+                              widget.blog.title,
+                              style: const TextStyle(
+                                fontSize: 24.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
                             ),
-                          ),
                           const SizedBox(height: 10),
-                          Text(
-                            'Category: ${widget.blog.category}',
-                            style: TextStyle(
-                              fontSize: 16.0,
-                              color: Colors.grey[700],
+                          if (_isEditing)
+                            TextFormField(
+                              controller: _categoryController,
+                              decoration: const InputDecoration(
+                                labelText: 'Category',
+                                labelStyle: TextStyle(
+                                  color: Colors.black,
+                                ),
+                                border: OutlineInputBorder(),
+                              ),
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                color: Colors.grey[700],
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter a category';
+                                }
+                                return null;
+                              },
+                            )
+                          else
+                            Text(
+                              'Category: ${widget.blog.category}',
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                color: Colors.grey[700],
+                              ),
                             ),
-                          ),
                           const SizedBox(height: 10),
-                          Text(
-                            widget.blog.content,
-                            style: const TextStyle(
-                              fontSize: 18.0,
-                              color: Colors.black,
+                          if (firstImage != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 10.0),
+                              child: Image.file(
+                                firstImage,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 20),
-                          if (_imageUrls.isNotEmpty)
-                            ..._imageUrls.map((url) => Padding(
-                                  padding: const EdgeInsets.only(bottom: 8.0),
-                                  child: Image.file(
-                                    File(url),
-                                    fit: BoxFit.cover,
+                          for (int i = 0; i < contentChunks.length; i++) ...[
+                            Text(
+                              contentChunks[i],
+                              style: const TextStyle(
+                                fontSize: 18.0,
+                                color: Colors.black,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            if (i == 0 && middleImages.isNotEmpty)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10.0),
+                                child: SizedBox(
+                                  height: 200,
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: middleImages.length,
+                                    itemBuilder: (context, index) {
+                                      final imageFile =
+                                          File(middleImages[index]);
+                                      return GestureDetector(
+                                        onTap: () => _showImageDialog(
+                                            context, imageFile),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 4.0),
+                                          child: Image.file(
+                                            imageFile,
+                                            fit: BoxFit.cover,
+                                            width: 200,
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   ),
-                                )),
+                                ),
+                              ),
+                            if (i < contentChunks.length - 1)
+                              const SizedBox(height: 10),
+                          ],
+                          if (lastImage != null)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10.0),
+                              child: Image.file(
+                                lastImage,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                              ),
+                            ),
                           const SizedBox(height: 10),
                           Text(
                             'Steps: $_steps',
@@ -247,46 +505,92 @@ class _BlogScreenState extends State<BlogScreen> {
             ],
           ),
           Positioned(
-            bottom: 16.0,
-            right: 16.0,
+            bottom: _isMenuOpen && _currentPosition != null ? 0 : 60.0,
+            right: 15.0,
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 if (_isMenuOpen) ...[
+                  const SizedBox(height: 8),
                   FloatingActionButton(
                     backgroundColor: AppColors.color1,
-                    child: const Icon(Icons.camera_alt),
                     onPressed: _pickImage,
+                    child: const Icon(Icons.camera_alt),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   FloatingActionButton(
                     backgroundColor: _isCountingSteps
                         ? AppColors.greenColor
                         : AppColors.redColor,
-                    child: const Icon(Icons.directions_walk),
                     onPressed: _toggleStepCounter,
+                    child: const Icon(Icons.directions_walk),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   FloatingActionButton(
-                    backgroundColor: AppColors.color1,
+                    backgroundColor: _currentPosition == null
+                        ? AppColors.redColor
+                        : AppColors.greenColor,
                     child: const Icon(Icons.location_on),
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Add Location button pressed!'),
-                        ),
-                      );
+                      if (_currentPosition == null) {
+                        _getLocation();
+                      } else {
+                        _showMapDialog(context);
+                      }
                     },
                   ),
                 ],
-                FloatingActionButton(
-                  backgroundColor: AppColors.color1,
-                  child: Icon(_isMenuOpen ? Icons.close : Icons.add),
-                  onPressed: _toggleMenu,
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_isMenuOpen) ...[
+                      FloatingActionButton(
+                        backgroundColor: AppColors.color1,
+                        onPressed: _toggleEditing,
+                        child: Icon(
+                          _isEditing ? Icons.save : Icons.edit,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    FloatingActionButton(
+                      backgroundColor: AppColors.color1,
+                      onPressed: _toggleMenu,
+                      child: Icon(_isMenuOpen ? Icons.close : Icons.add),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
+          if (_currentPosition != null) ...[
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 200,
+              child: GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: LatLng(
+                      _currentPosition!.latitude, _currentPosition!.longitude),
+                  zoom: 15,
+                ),
+                onMapCreated: (controller) {
+                  _mapController = controller;
+                },
+                markers: {
+                  Marker(
+                    markerId: const MarkerId('current_location'),
+                    position: LatLng(_currentPosition!.latitude,
+                        _currentPosition!.longitude),
+                    infoWindow: const InfoWindow(title: 'Current Location'),
+                  ),
+                },
+              ),
+            ),
+          ],
         ],
       ),
     );
