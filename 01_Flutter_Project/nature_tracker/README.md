@@ -48,3 +48,24 @@ By the end of the trip, they will have a collection of blog entries with photos 
 
 ---
 
+#1 Setup
+I cloned the Smart trash app and updated the whole GUI. I could not yet decide on what colors i want to use so i kept them for now.
+I then changed the application so i could use it as a blog app.
+It took me longer than expected to rebuild this but after i was done with this i was quite happy.
+now I can create new adventures and add multiple Blogs to it. 
+ - Side Note: I forgot to push this version to the Git hub repository. 
+ 
+#2 Hardware Implemenations
+
+I implemented the Camera with  the help of the ImagePicker.dart
+To make this work i had to decide on which platform i wanted to run the applicaiton. 
+Since i have the Android emulator and own an Android myself i wanted to prioritize this platform.
+I did enticipate to create an working IOs version aswell thats why i changed the "INFO.plist" aswell to acknowledge the permissions.
+
+During this working period I also implemented a Sidebar with a Dummy login Screen. It doesnt work yet but it already look acceptable.
+
+Second Sensor i wanted to integrate was teh Pedometer. For now it only takes the total steps of the day and does not rly count them itself.
+So on the Android Emulator it does not have any data but on my phone it works and it takes the current footsteps of the day.
+
+
+

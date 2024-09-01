@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nature_tracker/main_screen.dart';
 import 'package:nature_tracker/models/app_colors.dart';
+import 'package:nature_tracker/models/group.dart';
 
 class GroupDetailScreen extends StatelessWidget {
   final Group group;
@@ -10,38 +10,32 @@ class GroupDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent, // Make background color transparent
+      backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-          // Background image
           Positioned.fill(
             child: Image.asset(
-              'assets/images/background-06.png', // Update with your background image path
-              fit: BoxFit.cover, // Ensure the image covers the entire screen
+              'assets/images/background-06.png',
+              fit: BoxFit.cover,
             ),
           ),
-          // Main content
           Column(
             children: [
               AppBar(
-                backgroundColor:
-                    AppColors.color3, // Use color3 for the AppBar background
-                elevation: 6.0, // Light shadow
-                centerTitle: true, // Center the title widget
+                backgroundColor: AppColors.color3,
+                elevation: 6.0,
+                centerTitle: true,
                 leading: IconButton(
-                  icon: const Icon(Icons.arrow_back,
-                      color: AppColors.color1), // Yellow return button
+                  icon: const Icon(Icons.arrow_back, color: AppColors.color1),
                   onPressed: () {
-                    Navigator.of(context)
-                        .pop(); // Navigate back to the previous screen
+                    Navigator.of(context).pop();
                   },
                 ),
                 title: SizedBox(
-                  height:
-                      40, // Adjust this value to make the logo smaller or larger
+                  height: 40,
                   child: Image.asset(
-                    'assets/images/header.png', // Update with your PNG logo path
-                    fit: BoxFit.contain, // Ensure the logo scales correctly
+                    'assets/images/header.png',
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),
@@ -56,43 +50,85 @@ class GroupDetailScreen extends StatelessWidget {
                   itemCount: group.myBlogs.length,
                   itemBuilder: (context, index) {
                     final blog = group.myBlogs[index];
+                    final truncatedGroupName = blog.groupName.length > 15
+                        ? blog.groupName.substring(0, 15) + '...'
+                        : blog.groupName;
+
                     return GestureDetector(
                       onTap: () {
-                        // Handle toggle status or other actions here
+                        // Handle tap action
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                          color: blog.isFull
-                              ? AppColors.redColor
-                              : AppColors
-                                  .greenColor, // Use defined colors for full/empty
+                          color: AppColors.greenColor,
                           borderRadius: BorderRadius.circular(8.0),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: AppColors.color3.withOpacity(0.2),
                               spreadRadius: 2,
                               blurRadius: 5,
-                              offset: Offset(0, 3),
+                              offset: const Offset(0, 3),
                             ),
                           ],
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        child: Stack(
                           children: [
-                            Text(
-                              blog.name,
-                              style: const TextStyle(
-                                  fontSize: 24,
-                                  color: Colors
-                                      .white), // Keep white text for contrast
+                            Align(
+                              alignment: Alignment.center,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    blog.title,
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      color: AppColors.color5,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    truncatedGroupName,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: AppColors.color5,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
                             ),
-                            const SizedBox(height: 10),
-                            Text(
-                              blog.isFull ? 'Full' : 'Empty',
-                              style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors
-                                      .white), // Keep white text for contrast
+                            Positioned(
+                              bottom: 10,
+                              right: 10,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6.0,
+                                  vertical: 4.0,
+                                ),
+                                child: Text(
+                                  blog.category,
+                                  style: const TextStyle(
+                                    color: AppColors.color5,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              left: 0,
+                              child: IconButton(
+                                icon: Icon(
+                                  blog.liked
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  color: AppColors.color5,
+                                ),
+                                onPressed: () {},
+                              ),
                             ),
                           ],
                         ),
@@ -101,19 +137,16 @@ class GroupDetailScreen extends StatelessWidget {
                   },
                 ),
               ),
-              // Bottom bar with group name
               Container(
-                color: AppColors
-                    .color3, // Use color3 for the bottom bar background
-                padding: const EdgeInsets.all(
-                    10.0), // Add some padding around the text
+                color: AppColors.color3,
+                padding: const EdgeInsets.all(10.0),
                 child: Center(
                   child: Text(
                     group.name,
                     style: const TextStyle(
-                      color: AppColors.color5, // Use color5 for the text
-                      fontSize: 18, // Adjust font size as needed
-                      fontWeight: FontWeight.bold, // Bold text for emphasis
+                      color: AppColors.color5,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),

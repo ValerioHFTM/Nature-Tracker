@@ -1,24 +1,24 @@
-import 'package:flutter/material.dart';
-import 'package:nature_tracker/models/trash_bin.dart';
+/*import 'package:flutter/material.dart';
+import 'package:nature_tracker/models/my_blog.dart';
 import 'package:nature_tracker/models/app_colors.dart';
 
-class TrashBinWidget extends StatelessWidget {
-  final TrashBin bin;
+class BlogWidget extends StatelessWidget {
+  final MyBlog blog;
   final VoidCallback onTap;
 
-  const TrashBinWidget({super.key, required this.bin, required this.onTap});
+  const BlogWidget({super.key, required this.blog, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final truncatedGroupName = bin.groupName.length > 12
-        ? '${bin.groupName.substring(0, 12)}...'
-        : bin.groupName;
+    final truncatedGroupName = blog.groupName.length > 12
+        ? '${blog.groupName.substring(0, 12)}...'
+        : blog.groupName;
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: bin.isFull ? AppColors.redColor : AppColors.greenColor,
+          color: AppColors.greenColor,
           borderRadius: BorderRadius.circular(8.0),
           boxShadow: [
             BoxShadow(
@@ -38,7 +38,7 @@ class TrashBinWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    bin.name,
+                    blog.title,
                     style: const TextStyle(
                       fontSize: 24,
                       color: AppColors.color5,
@@ -46,8 +46,8 @@ class TrashBinWidget extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 10),
-                  Text(
-                    bin.isFull ? 'Full' : 'Empty',
+                  const Text(
+                    'here is the content',
                     style: const TextStyle(
                       fontSize: 18,
                       color: AppColors.color5,
@@ -60,7 +60,7 @@ class TrashBinWidget extends StatelessWidget {
             Positioned(
               bottom: 10,
               right: 10,
-              child: _getCategoryIcon(bin.category),
+              child: _getCategoryIcon(blog.category),
             ),
             Positioned(
               bottom: 10,
@@ -100,3 +100,5 @@ class TrashBinWidget extends StatelessWidget {
     }
   }
 }
+
+*/

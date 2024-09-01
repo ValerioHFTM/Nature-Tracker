@@ -1,12 +1,8 @@
-import 'package:nature_tracker/models/trash_bin.dart';
+import 'package:nature_tracker/models/my_blog.dart';
 
 class Group {
   final String name;
-  final List<TrashBin> trashBins;
+  final List<MyBlog> myBlogs;
 
-  Group({required this.name}) : trashBins = [];
-
-  bool isAnyBinFull() {
-    return trashBins.any((bin) => bin.isFull);
-  }
+  Group({required this.name}) : myBlogs = [];
 }

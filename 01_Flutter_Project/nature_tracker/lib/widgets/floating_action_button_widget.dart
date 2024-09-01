@@ -18,7 +18,7 @@ class FloatingActionButtonWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0), // Adjust padding for bottom
       child: SizedBox(
-        width: 200, // Fixed width for uniform button size
+        width: 240, // Fixed width for uniform button size
         child: ElevatedButton.icon(
           onPressed:
               selectedIndex == 0 ? showAddBlogDialog : showAddGroupDialog,
@@ -27,7 +27,7 @@ class FloatingActionButtonWidget extends StatelessWidget {
             color: AppColors.color1, // Set icon color to color1
           ),
           label: Text(
-            selectedIndex == 0 ? "Add New Blog" : "Add New Group",
+            selectedIndex == 0 ? "Add New Blog" : "Add New Adventure",
             textAlign: TextAlign.left, // Align text to the left
             style: const TextStyle(
               fontSize: 18,
