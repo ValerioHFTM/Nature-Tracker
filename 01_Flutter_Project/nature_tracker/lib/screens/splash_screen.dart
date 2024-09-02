@@ -25,27 +25,27 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.color3, // Set background color
+      backgroundColor: AppColors.color1, // Set background color
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Image.asset(
-              'assets/images/LogoHintergrundSchwarz-04.png', // Use your PNG logo here
-              height: 500.0, // Adjust size as needed
-              width: 500.0, // Adjust size as needed
+              'assets/images/Logo_Black_NatureTracker_Double.png', 
+              height: 350.0, // Adjust size as needed
+              width: 350.0, // Adjust size as needed
             ),
             const SizedBox(height: 20),
             const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(
-                  AppColors.color1), // Change color here
+                  AppColors.color5), // Change color here
             ),
             const SizedBox(height: 20),
             const Text(
               'Verbindung wird hergestellt...',
               style: TextStyle(
                 fontSize: 16,
-                color: AppColors.color1, // Use color3 for text
+                color: AppColors.color5, // Use color3 for text
               ),
             ),
           ],

@@ -14,9 +14,15 @@ class GroupDetailScreen extends StatelessWidget {
       body: Stack(
         children: [
           Positioned.fill(
+            child: ColorFiltered(
+            colorFilter: const ColorFilter.mode(
+              Color.fromARGB(24, 116, 142, 85), // Desired color
+              BlendMode.srcIn, // Blend mode to apply color
+            ),
             child: Image.asset(
-              'assets/images/background-06.png',
+              'assets/images/Icon_White.png',
               fit: BoxFit.cover,
+              ),
             ),
           ),
           Column(
@@ -34,7 +40,7 @@ class GroupDetailScreen extends StatelessWidget {
                 title: SizedBox(
                   height: 40,
                   child: Image.asset(
-                    'assets/images/header.png',
+                    'assets/images/Logo_Black_NatureTracker_Long.png',
                     fit: BoxFit.contain,
                   ),
                 ),

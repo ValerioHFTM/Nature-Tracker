@@ -55,9 +55,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: Stack(
         children: [
           Positioned.fill(
+            child: ColorFiltered(
+            colorFilter: const ColorFilter.mode(
+              Color.fromARGB(24, 116, 142, 85), // Desired color
+              BlendMode.srcIn, // Blend mode to apply color
+            ),
             child: Image.asset(
-              'assets/images/background-06.png',
+              'assets/images/Icon_White.png',
               fit: BoxFit.cover,
+              ),
             ),
           ),
           Center(

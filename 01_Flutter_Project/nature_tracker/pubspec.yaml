@@ -29,15 +29,15 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/logo_M.svg
-    - assets/images/LogoSchwarz-04.png
+    - assets/images/Icon_Black.png
+    - assets/images/Logo_Black_NatureTracker_Double.png
     - assets/images/LogoHintergrundSchwarz-04.png
-    - assets/images/background-06.png
-    - assets/images/header.png
+    - assets/images/Icon_White.png
+    - assets/images/Logo_Black_NatureTracker_Long.png
 
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/icon/icon.png" # Path to your icon file
+  image_path: "assets/images/Icon_Black.png" # Path to your icon file
   adaptive_icon_background: "#FFFFFF" # Background color for adaptive icons
-  adaptive_icon_foreground: "assets/icon/icon-foreground.png" # Path to foreground icon for adaptive icons
+  adaptive_icon_foreground: "assets/images/Icon_Black.png" # Path to foreground icon for adaptive icons

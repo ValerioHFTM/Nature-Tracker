@@ -124,27 +124,33 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.color3,
       drawer: _buildDrawer(context),
       body: Stack(
         children: [
           Positioned.fill(
+            child: ColorFiltered(
+            colorFilter: ColorFilter.mode(
+              const Color.fromARGB(24, 116, 142, 85), // Desired color
+              BlendMode.srcIn, // Blend mode to apply color
+            ),
             child: Image.asset(
-              'assets/images/background-06.png',
+              'assets/images/Icon_White.png',
               fit: BoxFit.cover,
+              ),
             ),
           ),
           Column(
             children: [
               AppBar(
-                backgroundColor: AppColors.color3,
+                backgroundColor: AppColors.color1,
                 elevation: 6.0,
                 centerTitle: true,
-                iconTheme: const IconThemeData(color: AppColors.color1),
+                iconTheme: const IconThemeData(color: AppColors.color3),
                 title: SizedBox(
                   height: 40,
                   child: Image.asset(
-                    'assets/images/header.png',
+                    'assets/images/Logo_Black_NatureTracker_Long.png',
                     fit: BoxFit.contain,
                   ),
                 ),
@@ -187,24 +193,22 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
   return Drawer(
     child: Column(
       children: <Widget>[
-        const SizedBox(
+        SizedBox(
           height: 150.0,
           child: DrawerHeader(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.color1,
             ),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Menu',
-                style: TextStyle(
-                  color: AppColors.color3,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+            child: Align(alignment: Alignment.centerLeft,
+              child: 
+                   Image.asset(
+                    'assets/images/Logo_Black_NatureTracker_Double.png', // Path to the name image
+                    height: 200.0, // Adjust as needed
+                    fit: BoxFit.contain,
+                  ),
+                
             ),
-          ),
+         ),
         ),
         Expanded(
           child: Container(

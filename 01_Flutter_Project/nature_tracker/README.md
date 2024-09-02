@@ -82,4 +82,7 @@ Tomorrow I will implement Hardware and Sensors:
 Hardware: Internet, batterylevel
 Sensor: Ambient Light sensor for a Darkmode detection  and i keep working on the Step Counter.
 
-
+#5 Prettier
+In this step i included the Logos and Colorschemes i prepared. now it looks already very good. I have to improve the Optics even more.
+Especially the text inputs are not perfect yet.
+Since the project is not on UI and graphics I should focus on what is really important.
