@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nature_tracker/splash_screen.dart';
+import 'package:nature_tracker/screens/splash_screen.dart';
 import 'package:nature_tracker/models/app_colors.dart';
+
 
 void main() {
   runApp(const SmartTrashApp());

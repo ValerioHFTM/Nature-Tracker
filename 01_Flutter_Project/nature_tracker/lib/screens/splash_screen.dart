@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nature_tracker/main_screen.dart';
+import 'package:nature_tracker/screens/main_screen.dart';
 import 'package:nature_tracker/models/app_colors.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -17,7 +17,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // Delay of 5 seconds and navigate to the MainScreen
     Future.delayed(const Duration(seconds: 5), () {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => MainScreen()),
+        MaterialPageRoute(builder: (context) =>  MainScreen(false,"loggedOut")),
       );
     });
   }
@@ -38,14 +38,14 @@ class _SplashScreenState extends State<SplashScreen> {
             const SizedBox(height: 20),
             const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(
-                  AppColors.color4), // Change color here
+                  AppColors.color1), // Change color here
             ),
             const SizedBox(height: 20),
             const Text(
               'Verbindung wird hergestellt...',
               style: TextStyle(
                 fontSize: 16,
-                color: AppColors.color4, // Use color3 for text
+                color: AppColors.color1, // Use color3 for text
               ),
             ),
           ],

@@ -24,14 +24,14 @@ class FloatingActionButtonWidget extends StatelessWidget {
               selectedIndex == 0 ? showAddBlogDialog : showAddGroupDialog,
           icon: const Icon(
             Icons.add,
-            color: AppColors.color1, // Set icon color to color1
+            color: AppColors.color4, // Set icon color to color1
           ),
           label: Text(
             selectedIndex == 0 ? "Add New Blog" : "Add New Adventure",
             textAlign: TextAlign.left, // Align text to the left
             style: const TextStyle(
               fontSize: 18,
-              color: AppColors.color5, // Set text color to color5
+              color: AppColors.color1, // Set text color to color5
             ),
           ),
           style: ElevatedButton.styleFrom(

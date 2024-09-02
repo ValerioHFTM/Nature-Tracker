@@ -72,3 +72,14 @@ So on the Android Emulator it does not have any data but on my phone it works an
 I improved the picture handling. now the Content is displayed much nicer with the picture worked in.
 The Google Maps should also work but man thats complicated so i try to finish this in the next step.
 
+
+#4 Unsecure Login and user settings implemented.
+
+There is now a Login which is not secure and every user has its user data. 
+The Google Maps Implementation is not working but thats ok. I tried to implement a FireBase Backend and had to reinstall Flutter, Android Studio and almost everything else becuause i wasnt able to start the application anymore.. I took a very Wrong turn I think.
+Well for now im happy with the progress. 
+Tomorrow I will implement Hardware and Sensors: 
+Hardware: Internet, batterylevel
+Sensor: Ambient Light sensor for a Darkmode detection  and i keep working on the Step Counter.
+
+

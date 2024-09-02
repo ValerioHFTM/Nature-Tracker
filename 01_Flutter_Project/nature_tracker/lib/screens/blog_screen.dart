@@ -25,7 +25,7 @@ class _BlogScreenState extends State<BlogScreen> {
   int _steps = 0;
   List<String> _imageUrls = [];
   Position? _currentPosition;
-  late GoogleMapController? _mapController;
+   GoogleMapController? _mapController;
   final ImagePicker _picker = ImagePicker();
   StreamSubscription<StepCount>? _stepCountSubscription;
   late TextEditingController _titleController;
@@ -37,7 +37,13 @@ class _BlogScreenState extends State<BlogScreen> {
     super.initState();
     _titleController = TextEditingController(text: widget.blog.title);
     _categoryController = TextEditingController(text: widget.blog.category);
-    _contentController = TextEditingController(text: widget.blog.content);
+    String content = widget.blog.content.isNotEmpty == true
+        ? widget.blog.content
+        : "No Content";
+    _contentController = TextEditingController(text: content);
+    
+    
+    
     _isCountingSteps = widget.blog.isCounting;
 
     if (_isCountingSteps) {
@@ -313,7 +319,7 @@ class _BlogScreenState extends State<BlogScreen> {
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: AppColors.greenColor,
+                      color: AppColors.color1,
                       borderRadius: BorderRadius.circular(8.0),
                       boxShadow: [
                         BoxShadow(
@@ -475,13 +481,7 @@ class _BlogScreenState extends State<BlogScreen> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          Text(
-                            'Field: ${widget.blog.liked}',
-                            style: const TextStyle(
-                              fontSize: 16.0,
-                              color: Colors.black,
-                            ),
-                          ),
+                          
                         ],
                       ),
                     ),
@@ -514,7 +514,7 @@ class _BlogScreenState extends State<BlogScreen> {
                 if (_isMenuOpen) ...[
                   const SizedBox(height: 8),
                   FloatingActionButton(
-                    backgroundColor: AppColors.color1,
+                    backgroundColor: AppColors.color4,
                     onPressed: _pickImage,
                     child: const Icon(Icons.camera_alt),
                   ),
@@ -547,7 +547,7 @@ class _BlogScreenState extends State<BlogScreen> {
                   children: [
                     if (_isMenuOpen) ...[
                       FloatingActionButton(
-                        backgroundColor: AppColors.color1,
+                        backgroundColor: AppColors.color4,
                         onPressed: _toggleEditing,
                         child: Icon(
                           _isEditing ? Icons.save : Icons.edit,
@@ -556,7 +556,7 @@ class _BlogScreenState extends State<BlogScreen> {
                       const SizedBox(width: 8),
                     ],
                     FloatingActionButton(
-                      backgroundColor: AppColors.color1,
+                      backgroundColor: AppColors.color4,
                       onPressed: _toggleMenu,
                       child: Icon(_isMenuOpen ? Icons.close : Icons.add),
                     ),
