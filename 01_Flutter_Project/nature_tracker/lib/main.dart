@@ -15,12 +15,24 @@ class NatureTracker extends StatelessWidget {
       title: 'Smart Trash',
       theme: ThemeData(
         primarySwatch: Colors.green,
+        fontFamily:
+            'FrederickaTheGreat', // This sets the default font family for the app
         textSelectionTheme: TextSelectionThemeData(
-          cursorColor: AppColors.color3, // Set cursor color to color1
-          selectionColor: AppColors.color3.withOpacity(
-              0.5), // Optional: Set selection color to a lighter version of color1
-          selectionHandleColor:
-              AppColors.color3, // Set selection handle color to color1
+          cursorColor: AppColors.color3,
+          selectionColor: AppColors.color3.withOpacity(0.5),
+          selectionHandleColor: AppColors.color3,
+        ),
+        textTheme: const TextTheme(
+          displayLarge: TextStyle(
+              fontFamily: 'FrederickaTheGreat',
+              fontSize: 72.0,
+              fontWeight: FontWeight.bold),
+          titleLarge: TextStyle(
+              fontFamily: 'FrederickaTheGreat',
+              fontSize: 36.0,
+              fontStyle: FontStyle.italic),
+          bodyMedium:
+              TextStyle(fontFamily: 'FrederickaTheGreat', fontSize: 14.0),
         ),
       ),
       home: const SplashScreen(),

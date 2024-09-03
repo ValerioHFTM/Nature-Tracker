@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:nature_tracker/models/app_colors.dart';
-import 'package:nature_tracker/models/group.dart';
+import 'package:nature_tracker/models/adventure.dart';
+import 'package:nature_tracker/models/my_blog.dart';
 
-class GroupDetailScreen extends StatelessWidget {
-  final Group group;
+class GroupDetailScreen extends StatefulWidget {
+  const GroupDetailScreen({super.key, required this.blog, required this.group});
+  final MyBlog blog;
+  final Adventure group;
 
-  const GroupDetailScreen({super.key, required this.group});
+  @override
+  _GroupDetailScreenState createState() => _GroupDetailScreenState();
+}
 
+class _GroupDetailScreenState extends State<GroupDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,9 +59,9 @@ class GroupDetailScreen extends StatelessWidget {
                     crossAxisSpacing: 10.0,
                     mainAxisSpacing: 10.0,
                   ),
-                  itemCount: group.myBlogs.length,
+                  itemCount: widget.group.myBlogs.length,
                   itemBuilder: (context, index) {
-                    final blog = group.myBlogs[index];
+                    final blog = widget.group.myBlogs[index];
                     final truncatedGroupName = blog.groupName.length > 15
                         ? blog.groupName.substring(0, 15) + '...'
                         : blog.groupName;
@@ -66,7 +72,7 @@ class GroupDetailScreen extends StatelessWidget {
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                          color: AppColors.greenColor,
+                          color: AppColors.color1,
                           borderRadius: BorderRadius.circular(8.0),
                           boxShadow: [
                             BoxShadow(
@@ -77,6 +83,7 @@ class GroupDetailScreen extends StatelessWidget {
                             ),
                           ],
                         ),
+                        //Single Block
                         child: Stack(
                           children: [
                             Align(
@@ -89,7 +96,7 @@ class GroupDetailScreen extends StatelessWidget {
                                     blog.title,
                                     style: const TextStyle(
                                       fontSize: 24,
-                                      color: AppColors.color5,
+                                      color: AppColors.color3,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -98,7 +105,7 @@ class GroupDetailScreen extends StatelessWidget {
                                     truncatedGroupName,
                                     style: const TextStyle(
                                       fontSize: 14,
-                                      color: AppColors.color5,
+                                      color: AppColors.color3,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -110,9 +117,7 @@ class GroupDetailScreen extends StatelessWidget {
                               right: 10,
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 6.0,
-                                  vertical: 4.0,
-                                ),
+                                    horizontal: 6.0, vertical: 4.0),
                                 child: Text(
                                   blog.category,
                                   style: const TextStyle(
@@ -131,9 +136,13 @@ class GroupDetailScreen extends StatelessWidget {
                                   blog.liked
                                       ? Icons.favorite
                                       : Icons.favorite_border,
-                                  color: AppColors.color5,
+                                  color: AppColors.color3,
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+                                  setState(() {
+                                    blog.liked = !blog.liked;
+                                  });
+                                },
                               ),
                             ),
                           ],
@@ -148,7 +157,7 @@ class GroupDetailScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(10.0),
                 child: Center(
                   child: Text(
-                    group.name,
+                    widget.group.name,
                     style: const TextStyle(
                       color: AppColors.color5,
                       fontSize: 18,

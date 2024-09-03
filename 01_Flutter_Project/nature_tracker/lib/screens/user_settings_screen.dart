@@ -136,6 +136,10 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
+                    constraints: const BoxConstraints(
+                      minWidth: double.infinity,
+                      minHeight: 200.0,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.color1,
                       borderRadius: BorderRadius.circular(8.0),

@@ -1,8 +1,9 @@
 import 'package:nature_tracker/models/my_blog.dart';
 
-class Group {
+class Adventure {
   final String name;
+  final String id;
   final List<MyBlog> myBlogs;
 
-  Group({required this.name}) : myBlogs = [];
+  Adventure({required this.name, required this.id}) : myBlogs = [];
 }

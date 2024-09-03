@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nature_tracker/models/app_colors.dart';
-import 'package:nature_tracker/models/my_blog.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:geolocator/geolocator.dart';
@@ -24,138 +23,46 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsState extends State<SettingsScreen> {
   final Battery _battery = Battery();
-  late Future<int> _batteryLevel;
-  bool _isMenuOpen = false;
-  late bool _isCountingSteps;
-  bool _isEditing = false;
-  int _steps = 0;
-  List<String> _imageUrls = [];
-  Position? _currentPosition;
-  final ImagePicker _picker = ImagePicker();
-  StreamSubscription<StepCount>? _stepCountSubscription;
-  late TextEditingController _titleController;
-  late TextEditingController _categoryController;
-  late TextEditingController _contentController;
+  late StreamSubscription<BatteryState> _batterySubscription;
+  int _batteryLevel = 0; // Store battery level
 
   @override
   void initState() {
     super.initState();
-    _batteryLevel = _battery.batteryLevel; // Get the initial battery level
+    _updateBatteryLevel(); // Initialize battery level
+    _batterySubscription =
+        _battery.onBatteryStateChanged.listen((BatteryState state) {
+      _updateBatteryLevel();
+    });
   }
 
   @override
   void dispose() {
-    _stopCountingSteps();
-    _titleController.dispose();
-    _categoryController.dispose();
-    _contentController.dispose();
+    _batterySubscription.cancel(); // Cancel subscription when disposing
     super.dispose();
   }
 
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.camera);
-    if (pickedFile != null) {
-      setState(() {
-        _imageUrls.add(pickedFile.path);
-      });
-    }
+  Future<void> _updateBatteryLevel() async {
+    final level = await _battery.batteryLevel;
+    setState(() {
+      _batteryLevel = level;
+    });
   }
 
-  void _startCountingSteps() {
-    try {
-      final pedometerStream = Pedometer.stepCountStream;
-      _stepCountSubscription = pedometerStream.listen(
-        (StepCount event) {
-          setState(() {
-            _steps = event.steps;
-          });
-        },
-        onError: (error) {
-          print('Error in step count stream: $error');
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Error accessing step count data.'),
-            ),
-          );
-        },
-        onDone: () {
-          print('Step count stream closed');
-        },
-      );
-    } catch (e) {
-      print('Exception caught: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to start step count tracking.'),
-        ),
-      );
+  Widget _getBatteryIcon(int batteryLevel) {
+    if (batteryLevel >= 75) {
+      return Icon(Icons.battery_full, color: AppColors.color1, size: 20);
+    } else if (batteryLevel >= 50) {
+      return Icon(Icons.battery_3_bar, color: AppColors.color5, size: 20);
+    } else if (batteryLevel >= 25) {
+      return Icon(Icons.battery_2_bar, color: AppColors.color4, size: 20);
+    } else {
+      return Icon(Icons.battery_alert, color: AppColors.redColor, size: 20);
     }
-  }
-
-  void _stopCountingSteps() {
-    if (_stepCountSubscription != null) {
-      _stepCountSubscription!.cancel();
-      _stepCountSubscription = null; // Ensure subscription is reset
-    }
-  }
-
-  // Function to show the enlarged image in a dialog
-  void _showImageDialog(BuildContext context, File image) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: AppColors.color2, // Set the background color
-          child: Stack(
-            children: [
-              Center(
-                child: Image.file(
-                  image,
-                  fit: BoxFit.contain,
-                  height: MediaQuery.of(context).size.height * 0.95,
-                ),
-              ),
-              Positioned(
-                top: 8.0,
-                right: 8.0,
-                child: IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    List<String> _splitContent(String content, int maxSentences) {
-      final sentences = content.split(RegExp(r'(?<=[.!?])\s+'));
-      final chunks = <String>[];
-      for (var i = 0; i < sentences.length; i += maxSentences) {
-        final chunk = sentences
-            .sublist(
-                i,
-                i + maxSentences > sentences.length
-                    ? sentences.length
-                    : i + maxSentences)
-            .join(' ');
-        chunks.add(chunk);
-      }
-      return chunks;
-    }
-
-    final firstImage = _imageUrls.isNotEmpty ? File(_imageUrls.first) : null;
-    final lastImage = _imageUrls.length > 1 ? File(_imageUrls.last) : null;
-    final middleImages = _imageUrls.length > 2
-        ? _imageUrls.sublist(1, _imageUrls.length - 1)
-        : [];
-
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Stack(
@@ -213,157 +120,15 @@ class _SettingsState extends State<SettingsScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (_isEditing)
-                            TextFormField(
-                              controller: _titleController,
-                              decoration: const InputDecoration(
-                                labelText: 'Title',
-                                labelStyle: TextStyle(
-                                  color: Colors.black,
-                                ),
-                                border: OutlineInputBorder(),
-                              ),
-                              style: const TextStyle(
-                                fontSize: 24.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter a title';
-                                }
-                                return null;
-                              },
-                            )
-                          else
-                            Text(
-                              "widget.blog.title,",
-                              style: const TextStyle(
-                                fontSize: 24.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                          const SizedBox(height: 10),
-                          if (_isEditing)
-                            TextFormField(
-                              controller: _categoryController,
-                              decoration: const InputDecoration(
-                                labelText: 'Category',
-                                labelStyle: TextStyle(
-                                  color: Colors.black,
-                                ),
-                                border: OutlineInputBorder(),
-                              ),
-                              style: TextStyle(
-                                fontSize: 16.0,
-                                color: Colors.grey[700],
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter a category';
-                                }
-                                return null;
-                              },
-                            )
-                          else
-                            Text(
-                              'Category:',
-                              style: TextStyle(
-                                fontSize: 16.0,
-                                color: Colors.grey[700],
-                              ),
-                            ),
-                          const SizedBox(height: 10),
-                          if (firstImage != null)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 10.0),
-                              child: Image.file(
-                                firstImage,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                              ),
-                            ),
-
-                          if (lastImage != null)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 10.0),
-                              child: Image.file(
-                                lastImage,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                              ),
-                            ),
-                          const SizedBox(height: 10),
-                          Text(
-                            'Steps: $_steps',
-                            style: const TextStyle(
-                              fontSize: 16.0,
-                              color: Colors.black,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            'Altitude:  meters',
-                            style: const TextStyle(
-                              fontSize: 16.0,
-                              color: Colors.black,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            'Distance:  meters',
-                            style: const TextStyle(
-                              fontSize: 16.0,
-                              color: Colors.black,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-
-                          // Place the FlutterMap here
-                          if (_currentPosition != null)
-                            Container(
-                              height: 200, // Fixed height for the map
-                              width: double.infinity,
-                              child: FlutterMap(
-                                options: MapOptions(
-                                  center: LatLng(_currentPosition!.latitude,
-                                      _currentPosition!.longitude),
-                                  zoom: 15.0,
-                                ),
-                                children: [
-                                  TileLayer(
-                                    urlTemplate:
-                                        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                                    subdomains: ['a', 'b', 'c'],
-                                  ),
-                                  MarkerLayer(
-                                    markers: [
-                                      Marker(
-                                        width: 80.0,
-                                        height: 80.0,
-                                        point: LatLng(
-                                            _currentPosition!.latitude,
-                                            _currentPosition!.longitude),
-                                        builder: (ctx) => Container(
-                                          child: const Icon(
-                                            Icons.location_on,
-                                            color: Colors.red,
-                                            size: 40.0,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
+                          Text("data"),
                         ],
                       ),
                     ),
                   ),
                 ),
               ),
+
+              // Footer Styled Part
               Positioned(
                 bottom: 0,
                 left: 0,
@@ -376,7 +141,7 @@ class _SettingsState extends State<SettingsScreen> {
                     children: [
                       // Author Information
                       Text(
-                        'author.username', // Replace this with actual author's username
+                        'author.username',
                         style: TextStyle(
                           color: AppColors.color1,
                           fontSize: 16,
@@ -384,99 +149,24 @@ class _SettingsState extends State<SettingsScreen> {
                         ),
                       ),
                       // Battery Icon and Level
-                      FutureBuilder<int>(
-                        future: _batteryLevel,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const CircularProgressIndicator();
-                          }
-                          if (snapshot.hasData) {
-                            final batteryLevel = snapshot.data!;
-                            return Row(
-                              children: [
-                                Icon(
-                                  Icons.battery_full,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  '$batteryLevel%', // Display battery level
-                                  style: TextStyle(
-                                    color: AppColors.color1,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            );
-                          }
-                          return const Icon(Icons.error,
-                              color:
-                                  Colors.red); // Error icon if there's an issue
-                        },
+                      Row(
+                        children: [
+                          _getBatteryIcon(_batteryLevel),
+                          const SizedBox(width: 8),
+                          Text(
+                            '$_batteryLevel%', // Display battery level
+                            style: TextStyle(
+                              color: AppColors.color1,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
               ),
             ],
-          ),
-          // Buttons for editing
-          Positioned(
-            bottom: _isMenuOpen && _currentPosition != null ? 0 : 60.0,
-            right: 15.0,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                if (_isMenuOpen) ...[
-                  const SizedBox(height: 8),
-                  FloatingActionButton(
-                    backgroundColor: AppColors.color4,
-                    onPressed: _pickImage,
-                    child: const Icon(Icons.camera_alt),
-                  ),
-                  const SizedBox(height: 8),
-                  FloatingActionButton(
-                    backgroundColor: _isCountingSteps
-                        ? AppColors.greenColor
-                        : AppColors.redColor,
-                    onPressed: () {},
-                    child: const Icon(Icons.directions_walk),
-                  ),
-                  const SizedBox(height: 8),
-                  FloatingActionButton(
-                    backgroundColor: _currentPosition == null
-                        ? AppColors.redColor
-                        : AppColors.greenColor,
-                    child: const Icon(Icons.location_on),
-                    onPressed: () {},
-                  ),
-                ],
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (_isMenuOpen) ...[
-                      FloatingActionButton(
-                        backgroundColor: AppColors.color4,
-                        onPressed: () {},
-                        child: Icon(
-                          _isEditing ? Icons.save : Icons.edit,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                    ],
-                    FloatingActionButton(
-                      backgroundColor: AppColors.color4,
-                      onPressed: () {},
-                      child: Icon(_isMenuOpen ? Icons.close : Icons.add),
-                    ),
-                  ],
-                ),
-              ],
-            ),
           ),
         ],
       ),

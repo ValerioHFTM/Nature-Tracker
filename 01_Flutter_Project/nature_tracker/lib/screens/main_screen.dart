@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+import 'package:nature_tracker/backend/blog_service.dart';
 
 import 'package:nature_tracker/models/app_colors.dart';
-import 'package:nature_tracker/models/group.dart';
+import 'package:nature_tracker/models/adventure.dart';
 import 'package:nature_tracker/models/my_blog.dart';
 import 'package:nature_tracker/models/user_data.dart';
 import 'package:nature_tracker/models/user_manager.dart';
-import 'package:nature_tracker/screens/settings_screen.dart';
 
 import 'package:nature_tracker/widgets/floating_action_button_widget.dart';
 
@@ -13,6 +16,7 @@ import 'package:nature_tracker/screens/group_detail_screen.dart';
 import 'package:nature_tracker/screens/blog_screen.dart';
 import 'package:nature_tracker/screens/login_screen.dart';
 import 'package:nature_tracker/screens/user_settings_screen.dart';
+import 'package:nature_tracker/screens/settings_screen.dart';
 
 import 'package:uuid/uuid.dart';
 
@@ -30,14 +34,14 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   final List<MyBlog> _myBlogs = [];
   final List<String> _categories = ['Hike', 'Overnighter', 'Nature', 'Travel'];
-  final List<Group> _groups = [];
+  late Future<List<Adventure>> _adventures;
   late bool _isLoggedIn;
   late UserData? _currentUser;
 
   @override
   void initState() {
     super.initState();
-    _initializeGroups();
+    _initializeAdventures();
     _initializeUser();
   }
 
@@ -54,8 +58,9 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  void _initializeGroups() {
-    final demoGroup = Group(name: 'Demo Adventure ');
+  void _initializeAdventures() {
+    _adventures = getAdventures();
+    final demoGroup = Adventure(name: 'Demo Adventure ', id: "dummyID");
 
     final demoMyBlog = MyBlog(
       id: const Uuid().v4(),
@@ -90,7 +95,7 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
     demoGroup.myBlogs.add(demoMyBlog);
 
     setState(() {
-      _groups.add(demoGroup);
+      //_adventures.add(demoGroup);
       _myBlogs.add(demoMyBlog);
     });
   }
@@ -109,12 +114,27 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
     });
   }
 
+  void _goToAdventureBlog(MyBlog blog, Adventure group) {
+    setState(() {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+            builder: (context) => GroupDetailScreen(group: group, blog: blog)),
+      );
+    });
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
 
+/* Main Build Method For The Main Screen
+ *
+ *
+ *
+ *
+ */
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,8 +144,8 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
         children: [
           Positioned.fill(
             child: ColorFiltered(
-              colorFilter: ColorFilter.mode(
-                const Color.fromARGB(24, 116, 142, 85), // Desired color
+              colorFilter: const ColorFilter.mode(
+                Color.fromARGB(24, 116, 142, 85), // Desired color
                 BlendMode.srcIn, // Blend mode to apply color
               ),
               child: Image.asset(
@@ -154,6 +174,7 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
                     ? _buildOverview()
                     : _buildAdventure(context),
               ),
+              //if (_isLoggedIn)
               FloatingActionButtonWidget(
                 selectedIndex: _selectedIndex,
                 showAddBlogDialog: _showAddBlogDialog,
@@ -309,7 +330,10 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
       itemCount: _myBlogs.length,
       itemBuilder: (context, index) {
         final blog = _myBlogs[index];
-        final truncatedGroupName = blog.groupName.substring(0, 15);
+
+        final truncatedGroupName = blog.groupName.length > 15
+            ? blog.groupName.substring(0, 15)
+            : blog.groupName;
 
         return GestureDetector(
           onTap: () => _goToBlog(blog),
@@ -393,107 +417,11 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
     );
   }
 
-  //save this function for later when i implement this again
-  void _deleteBlog(MyBlog blog) {
-    setState(() {
-      _myBlogs.removeWhere((b) => b.id == blog.id);
-      _groups
-          .firstWhere((group) => group.name == blog.groupName)
-          .myBlogs
-          .remove(blog);
-    });
-  }
-
-  void _showEditBlogDialog(MyBlog blog) {
-    TextEditingController titleController =
-        TextEditingController(text: blog.title);
-    TextEditingController contentController =
-        TextEditingController(text: blog.content);
-    String updatedCategory = blog.category;
-
-    final focusNode = FocusNode();
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              backgroundColor: AppColors.color3,
-              title: const Text(
-                'Edit Blog',
-                style: TextStyle(color: AppColors.color1),
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: titleController,
-                    autofocus: true,
-                    decoration: const InputDecoration(
-                      hintText: 'Blog Title',
-                      hintStyle: TextStyle(color: AppColors.color5),
-                    ),
-                    style: const TextStyle(color: AppColors.color1),
-                  ),
-                  const SizedBox(height: 10),
-                  DropdownButton<String>(
-                    value: updatedCategory,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        updatedCategory = newValue!;
-                      });
-                    },
-                    items: _categories
-                        .map<DropdownMenuItem<String>>((String category) {
-                      return DropdownMenuItem<String>(
-                        value: category,
-                        child: Text(category,
-                            style: const TextStyle(color: AppColors.color1)),
-                      );
-                    }).toList(),
-                    dropdownColor: AppColors.color3,
-                    focusNode: focusNode,
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text(
-                    'Cancel',
-                    style: TextStyle(color: AppColors.color1),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      blog.title = titleController.text;
-                      blog.content = contentController.text;
-                      blog.category = updatedCategory;
-                    });
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text(
-                    'Save',
-                    style: TextStyle(color: AppColors.color1),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
   void _showAddBlogDialog() {
     final TextEditingController titleController = TextEditingController();
     final TextEditingController contentController = TextEditingController();
     String selectedCategory = _categories.first;
-    String selectedGroup = _groups.isNotEmpty ? _groups.first.name : '';
+    String selectedGroup = ''; // Default empty string for the initial selection
 
     showDialog(
       context: context,
@@ -504,102 +432,120 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
             'Add Blog',
             style: TextStyle(color: AppColors.color1),
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleController,
-                autofocus: true,
-                decoration: InputDecoration(
-                  hintText: 'Blog Title',
-                  hintStyle: TextStyle(color: AppColors.color1),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.color1),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.color1),
-                  ),
-                ),
-                style: TextStyle(color: AppColors.color1),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: contentController,
-                autofocus: true,
-                decoration: InputDecoration(
-                  hintText: 'Blog Content',
-                  hintStyle: TextStyle(color: AppColors.color1),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.color1),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.color1),
-                  ),
-                ),
-                style: TextStyle(color: AppColors.color1),
-              ),
-              const SizedBox(height: 10),
-              DropdownButtonFormField<String>(
-                value: selectedCategory,
-                onChanged: (String? newValue) {
-                  if (newValue != null) {
-                    setState(() {
-                      selectedCategory = newValue;
-                    });
-                  }
-                },
-                items: _categories
-                    .map<DropdownMenuItem<String>>((String category) {
-                  return DropdownMenuItem<String>(
-                    value: category,
-                    child: Text(
-                      category,
-                      style: TextStyle(color: AppColors.color1),
+          content: FutureBuilder<List<Adventure>>(
+            future: _adventures, // Use the Future here
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Center(child: Text('No adventures available.'));
+              } else {
+                final adventures = snapshot.data!;
+                selectedGroup =
+                    adventures.isNotEmpty ? adventures.first.name : '';
+
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: titleController,
+                      autofocus: true,
+                      decoration: const InputDecoration(
+                        hintText: 'Blog Title',
+                        hintStyle: TextStyle(color: AppColors.color1),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.color1),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.color1),
+                        ),
+                      ),
+                      style: const TextStyle(color: AppColors.color1),
                     ),
-                  );
-                }).toList(),
-                decoration: InputDecoration(
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.color1),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.color1),
-                  ),
-                ),
-                dropdownColor: AppColors.color3,
-                isExpanded: true,
-              ),
-              const SizedBox(height: 10),
-              DropdownButtonFormField<String>(
-                value: selectedGroup,
-                onChanged: (String? newValue) {
-                  if (newValue != null) {
-                    setState(() {
-                      selectedGroup = newValue;
-                    });
-                  }
-                },
-                items: _groups.map<DropdownMenuItem<String>>((Group group) {
-                  return DropdownMenuItem<String>(
-                    value: group.name,
-                    child: Text(
-                      group.name,
-                      style: TextStyle(color: AppColors.color1),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: contentController,
+                      autofocus: true,
+                      decoration: const InputDecoration(
+                        hintText: 'Blog Content',
+                        hintStyle: TextStyle(color: AppColors.color1),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.color1),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.color1),
+                        ),
+                      ),
+                      style: const TextStyle(color: AppColors.color1),
                     ),
-                  );
-                }).toList(),
-                decoration: InputDecoration(
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.color1),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.color1),
-                  ),
-                ),
-                dropdownColor: AppColors.color3,
-                isExpanded: true,
-              ),
-            ],
+                    const SizedBox(height: 10),
+                    DropdownButtonFormField<String>(
+                      value: selectedCategory,
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            selectedCategory = newValue;
+                          });
+                        }
+                      },
+                      items: _categories
+                          .map<DropdownMenuItem<String>>((String category) {
+                        return DropdownMenuItem<String>(
+                          value: category,
+                          child: Text(
+                            category,
+                            style: const TextStyle(color: AppColors.color1),
+                          ),
+                        );
+                      }).toList(),
+                      decoration: const InputDecoration(
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.color1),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.color1),
+                        ),
+                      ),
+                      dropdownColor: AppColors.color3,
+                      isExpanded: true,
+                    ),
+                    const SizedBox(height: 10),
+                    DropdownButtonFormField<String>(
+                      value: selectedGroup,
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            selectedGroup = newValue;
+                          });
+                        }
+                      },
+                      items: adventures
+                          .map<DropdownMenuItem<String>>((Adventure adventure) {
+                        return DropdownMenuItem<String>(
+                          value: adventure.name,
+                          child: Text(
+                            adventure.name,
+                            style: const TextStyle(color: AppColors.color1),
+                          ),
+                        );
+                      }).toList(),
+                      decoration: const InputDecoration(
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.color1),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.color1),
+                        ),
+                      ),
+                      dropdownColor: AppColors.color3,
+                      isExpanded: true,
+                    ),
+                  ],
+                );
+              }
+            },
           ),
           actions: [
             TextButton(
@@ -612,7 +558,7 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
               ),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 final newBlog = MyBlog(
                   id: const Uuid().v4(),
                   groupName: selectedGroup,
@@ -624,13 +570,12 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
                   distance: 0,
                   liked: false,
                 );
+                saveBlog(newBlog); // Ensure blog is saved
                 setState(() {
                   _myBlogs.add(newBlog);
-                  _groups
-                      .firstWhere((group) => group.name == selectedGroup)
-                      .myBlogs
-                      .add(newBlog);
+                  // Update _adventures to reflect new data if necessary
                 });
+
                 Navigator.of(context).pop();
               },
               child: const Text(
@@ -682,11 +627,20 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
               ),
             ),
             TextButton(
-              onPressed: () {
-                final newGroup = Group(name: nameController.text);
+              onPressed: () async {
+                final newAdventure = Adventure(
+                  name: nameController.text,
+                  id: "temporaryID", // Ideally, this should be generated by the backend
+                );
+
+                // Save the new adventure and wait for it to complete
+                await saveAdventure(newAdventure);
+
+                // Fetch and refresh the adventure list
                 setState(() {
-                  _groups.add(newGroup);
+                  _adventures = getAdventures(); // Refresh the adventure list
                 });
+
                 Navigator.of(context).pop();
               },
               child: const Text(
@@ -701,44 +655,55 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
   }
 
   Widget _buildAdventure(BuildContext context) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(10.0),
-      itemCount: _groups.length,
-      itemBuilder: (context, index) {
-        final group = _groups[index];
+    return FutureBuilder<List<Adventure>>(
+      future: _adventures, // Use the Future here
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('No adventures found.'));
+        } else {
+          final adventures = snapshot.data!;
 
-        return GestureDetector(
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => GroupDetailScreen(group: group),
-              ),
-            );
-          },
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 10),
+          return ListView.builder(
             padding: const EdgeInsets.all(10.0),
-            decoration: BoxDecoration(
-              color: AppColors.color1,
-              borderRadius: BorderRadius.circular(8.0),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.color3.withOpacity(0.2),
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: const Offset(0, 3),
+            itemCount: adventures.length,
+            itemBuilder: (context, index) {
+              final group = adventures[index];
+
+              return GestureDetector(
+                onTap: () {
+                  // Your navigation code
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(10.0),
+                  decoration: BoxDecoration(
+                    color: AppColors.color1,
+                    borderRadius: BorderRadius.circular(8.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.color3.withOpacity(0.2),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    group.name,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: AppColors.color5,
+                    ),
+                  ),
                 ),
-              ],
-            ),
-            child: Text(
-              group.name,
-              style: const TextStyle(
-                fontSize: 18,
-                color: AppColors.color5,
-              ),
-            ),
-          ),
-        );
+              );
+            },
+          );
+        }
       },
     );
   }

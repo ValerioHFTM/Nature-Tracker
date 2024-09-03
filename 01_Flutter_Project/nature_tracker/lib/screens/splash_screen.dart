@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:nature_tracker/screens/main_screen.dart';
+import 'package:http/http.dart' as http;
+import 'package:nature_tracker/backend/blog_service.dart';
+import 'dart:convert';
+
 import 'package:nature_tracker/models/app_colors.dart';
+import 'package:nature_tracker/models/adventure.dart';
+import 'package:nature_tracker/models/my_blog.dart';
+import 'package:nature_tracker/models/user_data.dart';
+import 'package:nature_tracker/models/user_manager.dart';
+
+import 'package:nature_tracker/screens/main_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -16,6 +25,10 @@ class _SplashScreenState extends State<SplashScreen> {
 
     // Delay of 5 seconds and navigate to the MainScreen
     Future.delayed(const Duration(seconds: 5), () {
+      getAdventures();
+      getBlogs();
+      getUsers();
+
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => MainScreen(false, "loggedOut")),
       );

@@ -28,6 +28,7 @@ dependencies:
   font_awesome_flutter: ^9.2.0
   google_fonts: ^2.1.0
   battery_plus: ^6.0.3
+  http: ^0.13.6
   
 
 
@@ -45,6 +46,10 @@ flutter:
     - assets/images/LogoHintergrundSchwarz-04.png
     - assets/images/Icon_White.png
     - assets/images/Logo_Black_NatureTracker_Long.png
+  fonts:
+    - family: FrederickaTheGreat
+      fonts:
+        - asset: assets/fonts/FrederickaTheGreat-Regular.ttf
 
 flutter_icons:
   android: true
@@ -52,3 +57,4 @@ flutter_icons:
   image_path: "assets/images/Icon_Black.png" # Path to your icon file
   adaptive_icon_background: "#FFFFFF" # Background color for adaptive icons
   adaptive_icon_foreground: "assets/images/Icon_Black.png" # Path to foreground icon for adaptive icons
+
