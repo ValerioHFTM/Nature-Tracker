@@ -11,15 +11,20 @@ import 'package:geolocator/geolocator.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
-class BlogScreen extends StatefulWidget {
-  const BlogScreen({super.key, required this.blog});
-  final MyBlog blog;
+import 'package:battery_plus/battery_plus.dart'; // Add the battery_plus package to your pubspec.yaml
+
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({
+    super.key,
+  });
 
   @override
-  _BlogScreenState createState() => _BlogScreenState();
+  _SettingsState createState() => _SettingsState();
 }
 
-class _BlogScreenState extends State<BlogScreen> {
+class _SettingsState extends State<SettingsScreen> {
+  final Battery _battery = Battery();
+  late Future<int> _batteryLevel;
   bool _isMenuOpen = false;
   late bool _isCountingSteps;
   bool _isEditing = false;
@@ -35,18 +40,7 @@ class _BlogScreenState extends State<BlogScreen> {
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController(text: widget.blog.title);
-    _categoryController = TextEditingController(text: widget.blog.category);
-    String content = widget.blog.content.isNotEmpty == true
-        ? widget.blog.content
-        : "No Content";
-    _contentController = TextEditingController(text: content);
-
-    _isCountingSteps = widget.blog.isCounting;
-
-    if (_isCountingSteps) {
-      _startCountingSteps();
-    }
+    _batteryLevel = _battery.batteryLevel; // Get the initial battery level
   }
 
   @override
@@ -56,46 +50,6 @@ class _BlogScreenState extends State<BlogScreen> {
     _categoryController.dispose();
     _contentController.dispose();
     super.dispose();
-  }
-
-  void _toggleMenu() {
-    setState(() {
-      _isMenuOpen = !_isMenuOpen;
-    });
-  }
-
-  Future<void> _requestLocationPermissions() async {
-    final permissionStatus = await Permission.location.request();
-    if (!permissionStatus.isGranted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Location permission is required.'),
-        ),
-      );
-    }
-  }
-
-  Future<void> _requestPermissions() async {
-    final status = await Permission.activityRecognition.request();
-    if (!status.isGranted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Activity recognition permission is required.'),
-        ),
-      );
-    }
-  }
-
-  void _toggleStepCounter() {
-    setState(() {
-      _isCountingSteps = !_isCountingSteps;
-      if (_isCountingSteps) {
-        _requestPermissions().then((_) => _startCountingSteps());
-      } else {
-        _stopCountingSteps();
-      }
-      widget.blog.isCounting = _isCountingSteps;
-    });
   }
 
   Future<void> _pickImage() async {
@@ -145,22 +99,6 @@ class _BlogScreenState extends State<BlogScreen> {
     }
   }
 
-  void _toggleEditing() {
-    setState(() {
-      _isEditing = !_isEditing;
-      if (!_isEditing) {
-        widget.blog.title = _titleController.text;
-        widget.blog.category = _categoryController.text;
-        widget.blog.content = _contentController.text;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Changes saved!'),
-          ),
-        );
-      }
-    });
-  }
-
   // Function to show the enlarged image in a dialog
   void _showImageDialog(BuildContext context, File image) {
     showDialog(
@@ -194,73 +132,6 @@ class _BlogScreenState extends State<BlogScreen> {
     );
   }
 
-  Future<void> _getLocation() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Location services are disabled.'),
-        ),
-      );
-      return;
-    }
-
-    await _requestLocationPermissions(); // Ensure permissions are requested
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-
-    setState(() {
-      _currentPosition = position;
-    });
-  }
-
-  void _showMapDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: AppColors.color2, // Set the background color
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height * 0.4,
-            width: MediaQuery.of(context).size.width * 0.9,
-            child: FlutterMap(
-              options: MapOptions(
-                center: LatLng(
-                    _currentPosition!.latitude, _currentPosition!.longitude),
-                zoom: 15.0,
-              ),
-              children: [
-                TileLayer(
-                  urlTemplate:
-                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                  subdomains: ['a', 'b', 'c'],
-                ),
-                MarkerLayer(
-                  markers: [
-                    Marker(
-                      width: 80.0,
-                      height: 80.0,
-                      point: LatLng(_currentPosition!.latitude,
-                          _currentPosition!.longitude),
-                      builder: (ctx) => Container(
-                        child: const Icon(
-                          Icons.location_on,
-                          color: Colors.red,
-                          size: 40.0,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     List<String> _splitContent(String content, int maxSentences) {
@@ -279,7 +150,6 @@ class _BlogScreenState extends State<BlogScreen> {
       return chunks;
     }
 
-    final contentChunks = _splitContent(widget.blog.content, 4);
     final firstImage = _imageUrls.isNotEmpty ? File(_imageUrls.first) : null;
     final lastImage = _imageUrls.length > 1 ? File(_imageUrls.last) : null;
     final middleImages = _imageUrls.length > 2
@@ -367,7 +237,7 @@ class _BlogScreenState extends State<BlogScreen> {
                             )
                           else
                             Text(
-                              widget.blog.title,
+                              "widget.blog.title,",
                               style: const TextStyle(
                                 fontSize: 24.0,
                                 fontWeight: FontWeight.bold,
@@ -398,7 +268,7 @@ class _BlogScreenState extends State<BlogScreen> {
                             )
                           else
                             Text(
-                              'Category: ${widget.blog.category}',
+                              'Category:',
                               style: TextStyle(
                                 fontSize: 16.0,
                                 color: Colors.grey[700],
@@ -414,47 +284,7 @@ class _BlogScreenState extends State<BlogScreen> {
                                 width: double.infinity,
                               ),
                             ),
-                          for (int i = 0; i < contentChunks.length; i++) ...[
-                            Text(
-                              contentChunks[i],
-                              style: const TextStyle(
-                                fontSize: 18.0,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            if (i == 0 && middleImages.isNotEmpty)
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10.0),
-                                child: SizedBox(
-                                  height: 200,
-                                  child: ListView.builder(
-                                    scrollDirection: Axis.horizontal,
-                                    itemCount: middleImages.length,
-                                    itemBuilder: (context, index) {
-                                      final imageFile =
-                                          File(middleImages[index]);
-                                      return GestureDetector(
-                                        onTap: () => _showImageDialog(
-                                            context, imageFile),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 4.0),
-                                          child: Image.file(
-                                            imageFile,
-                                            fit: BoxFit.cover,
-                                            width: 200,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                            if (i < contentChunks.length - 1)
-                              const SizedBox(height: 10),
-                          ],
+
                           if (lastImage != null)
                             Padding(
                               padding: const EdgeInsets.only(top: 10.0),
@@ -474,7 +304,7 @@ class _BlogScreenState extends State<BlogScreen> {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            'Altitude: ${widget.blog.altitude} meters',
+                            'Altitude:  meters',
                             style: const TextStyle(
                               fontSize: 16.0,
                               color: Colors.black,
@@ -482,7 +312,7 @@ class _BlogScreenState extends State<BlogScreen> {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            'Distance: ${widget.blog.distance} meters',
+                            'Distance:  meters',
                             style: const TextStyle(
                               fontSize: 16.0,
                               color: Colors.black,
@@ -534,17 +364,59 @@ class _BlogScreenState extends State<BlogScreen> {
                   ),
                 ),
               ),
-              Container(
-                color: AppColors.color3,
-                padding: const EdgeInsets.all(10.0),
-                child: Center(
-                  child: Text(
-                    widget.blog.title,
-                    style: const TextStyle(
-                      color: AppColors.color1,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  color: AppColors.color3,
+                  padding: const EdgeInsets.all(10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Author Information
+                      Text(
+                        'author.username', // Replace this with actual author's username
+                        style: TextStyle(
+                          color: AppColors.color1,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      // Battery Icon and Level
+                      FutureBuilder<int>(
+                        future: _batteryLevel,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          }
+                          if (snapshot.hasData) {
+                            final batteryLevel = snapshot.data!;
+                            return Row(
+                              children: [
+                                Icon(
+                                  Icons.battery_full,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '$batteryLevel%', // Display battery level
+                                  style: TextStyle(
+                                    color: AppColors.color1,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+                          return const Icon(Icons.error,
+                              color:
+                                  Colors.red); // Error icon if there's an issue
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -570,7 +442,7 @@ class _BlogScreenState extends State<BlogScreen> {
                     backgroundColor: _isCountingSteps
                         ? AppColors.greenColor
                         : AppColors.redColor,
-                    onPressed: _toggleStepCounter,
+                    onPressed: () {},
                     child: const Icon(Icons.directions_walk),
                   ),
                   const SizedBox(height: 8),
@@ -579,13 +451,7 @@ class _BlogScreenState extends State<BlogScreen> {
                         ? AppColors.redColor
                         : AppColors.greenColor,
                     child: const Icon(Icons.location_on),
-                    onPressed: () {
-                      if (_currentPosition == null) {
-                        _getLocation();
-                      } else {
-                        _showMapDialog(context);
-                      }
-                    },
+                    onPressed: () {},
                   ),
                 ],
                 const SizedBox(height: 8),
@@ -595,7 +461,7 @@ class _BlogScreenState extends State<BlogScreen> {
                     if (_isMenuOpen) ...[
                       FloatingActionButton(
                         backgroundColor: AppColors.color4,
-                        onPressed: _toggleEditing,
+                        onPressed: () {},
                         child: Icon(
                           _isEditing ? Icons.save : Icons.edit,
                         ),
@@ -604,7 +470,7 @@ class _BlogScreenState extends State<BlogScreen> {
                     ],
                     FloatingActionButton(
                       backgroundColor: AppColors.color4,
-                      onPressed: _toggleMenu,
+                      onPressed: () {},
                       child: Icon(_isMenuOpen ? Icons.close : Icons.add),
                     ),
                   ],

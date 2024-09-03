@@ -17,7 +17,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // Delay of 5 seconds and navigate to the MainScreen
     Future.delayed(const Duration(seconds: 5), () {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) =>  MainScreen(false,"loggedOut")),
+        MaterialPageRoute(builder: (context) => MainScreen(false, "loggedOut")),
       );
     });
   }
@@ -31,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Image.asset(
-              'assets/images/Logo_Black_NatureTracker_Double.png', 
+              'assets/images/Logo_Black_NatureTracker_Double.png',
               height: 350.0, // Adjust size as needed
               width: 350.0, // Adjust size as needed
             ),

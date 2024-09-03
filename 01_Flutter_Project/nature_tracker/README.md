@@ -86,3 +86,10 @@ Sensor: Ambient Light sensor for a Darkmode detection  and i keep working on the
 In this step i included the Logos and Colorschemes i prepared. now it looks already very good. I have to improve the Optics even more.
 Especially the text inputs are not perfect yet.
 Since the project is not on UI and graphics I should focus on what is really important.
+
+
+#6 Google Maps almost ruined me
+Well as I said, I wanted to implement Google Maps. I was wondering why it didn't work. The code looked good but it had no connection to the Google API.
+So easy said, easy done i connected the whole thing to google BUT WAIT. Thats not free. so up to a certain amount of usages you can use it for free but one wrong loop in the code and its bye bye Rolex.
+So I as i am using OSMAND on my phone anyway and this is connected to OpenStreetMap i figured this should be an easy switch. Well, easy enough. So now i have a working Map.
+Also I improved some more optics and the login and register screens are nicer now. 

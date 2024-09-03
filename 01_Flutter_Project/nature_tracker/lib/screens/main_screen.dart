@@ -5,9 +5,7 @@ import 'package:nature_tracker/models/group.dart';
 import 'package:nature_tracker/models/my_blog.dart';
 import 'package:nature_tracker/models/user_data.dart';
 import 'package:nature_tracker/models/user_manager.dart';
-
-
-
+import 'package:nature_tracker/screens/settings_screen.dart';
 
 import 'package:nature_tracker/widgets/floating_action_button_widget.dart';
 
@@ -16,9 +14,7 @@ import 'package:nature_tracker/screens/blog_screen.dart';
 import 'package:nature_tracker/screens/login_screen.dart';
 import 'package:nature_tracker/screens/user_settings_screen.dart';
 
-
 import 'package:uuid/uuid.dart';
-
 
 class MainScreen extends StatefulWidget {
   MainScreen(this.isLoggedIn, this.userName, {Key? key}) : super(key: key);
@@ -45,18 +41,18 @@ class _MainScreenState extends State<MainScreen> {
     _initializeUser();
   }
 
- void _initializeUser() {
-  try {
-    // Attempt to find the user by username
-    _currentUser = UserManager.instance.registeredUsers
-        .firstWhere((user) => user.username == widget.userName);
-    _isLoggedIn = true;  // User found, so user is logged in
-  } catch (e) {
-    // If no user is found, handle the case
-    _currentUser = null;  // Set _currentUser to null
-    _isLoggedIn = widget.isLoggedIn;  // Use the provided isLoggedIn status
+  void _initializeUser() {
+    try {
+      // Attempt to find the user by username
+      _currentUser = UserManager.instance.registeredUsers
+          .firstWhere((user) => user.username == widget.userName);
+      _isLoggedIn = true; // User found, so user is logged in
+    } catch (e) {
+      // If no user is found, handle the case
+      _currentUser = null; // Set _currentUser to null
+      _isLoggedIn = widget.isLoggedIn; // Use the provided isLoggedIn status
+    }
   }
-}
 
   void _initializeGroups() {
     final demoGroup = Group(name: 'Demo Adventure ');
@@ -100,12 +96,10 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
   }
 
   void _logout() {
-  setState(() {
-    _isLoggedIn = false; // Update login state
-  });
- 
-}
-
+    setState(() {
+      _isLoggedIn = false; // Update login state
+    });
+  }
 
   void _goToBlog(MyBlog blog) {
     setState(() {
@@ -130,13 +124,13 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
         children: [
           Positioned.fill(
             child: ColorFiltered(
-            colorFilter: ColorFilter.mode(
-              const Color.fromARGB(24, 116, 142, 85), // Desired color
-              BlendMode.srcIn, // Blend mode to apply color
-            ),
-            child: Image.asset(
-              'assets/images/Icon_White.png',
-              fit: BoxFit.cover,
+              colorFilter: ColorFilter.mode(
+                const Color.fromARGB(24, 116, 142, 85), // Desired color
+                BlendMode.srcIn, // Blend mode to apply color
+              ),
+              child: Image.asset(
+                'assets/images/Icon_White.png',
+                fit: BoxFit.cover,
               ),
             ),
           ),
@@ -189,115 +183,120 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
     );
   }
 
- Widget _buildDrawer(BuildContext context) {
-  return Drawer(
-    child: Column(
-      children: <Widget>[
-        SizedBox(
-          height: 150.0,
-          child: DrawerHeader(
-            decoration: const BoxDecoration(
-              color: AppColors.color1,
-            ),
-            child: Align(alignment: Alignment.centerLeft,
-              child: 
-                   Image.asset(
-                    'assets/images/Logo_Black_NatureTracker_Double.png', // Path to the name image
-                    height: 200.0, // Adjust as needed
-                    fit: BoxFit.contain,
-                  ),
-                
-            ),
-         ),
-        ),
-        Expanded(
-          child: Container(
-            color: AppColors.color3,
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: <Widget>[
-                ListTile(
-                  leading: const Icon(Icons.favorite, color: AppColors.color4),
-                  title: const Text('Favorites',
-                      style: TextStyle(color: AppColors.color1)),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    // Add action for Favorites
-                  },
+  Widget _buildDrawer(BuildContext context) {
+    return Drawer(
+      backgroundColor: AppColors.color4,
+      child: Column(
+        children: <Widget>[
+          SizedBox(
+            height: 150.0,
+            child: DrawerHeader(
+              decoration: const BoxDecoration(
+                color: AppColors.color1,
+              ),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Image.asset(
+                  'assets/images/Logo_Black_NatureTracker_Double.png', // Path to the name image
+                  height: 200.0, // Adjust as needed
+                  fit: BoxFit.contain,
                 ),
-                const Divider(),
-                ListTile(
-                  leading: const Icon(Icons.person, color: AppColors.color4),
-                  title: const Text('Profile Settings',
-                      style: TextStyle(color: AppColors.color1)),
-                  onTap: () {
-                    Navigator.of(context).pop(); // Close the drawer
-                    if (_isLoggedIn) {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => UserSettingsScreen(user: _currentUser),
-                        ),
-                      );
-                    } else {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const LoginScreen(),
-                        ),
-                      );
-                    }
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.settings, color: AppColors.color4),
-                  title: const Text('Settings',
-                      style: TextStyle(color: AppColors.color1)),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    // Add action for Settings
-                  },
-                ),
-                if (_isLoggedIn)
-                  ListTile(
-                    leading: const Icon(Icons.logout, color: AppColors.color4),
-                    title: const Text('Logout',
-                        style: TextStyle(color: AppColors.color1)),
-                    onTap: () {
-                      Navigator.of(context).pop(); // Close the drawer
-                      setState(() {
-                        _isLoggedIn = false; // Update login state
-                      });
-                      // Navigate to LoginScreen
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => const LoginScreen(),
-                        ),
-                      );
-                    },
-                  )
-                else
-                  ListTile(
-                    leading: const Icon(Icons.login, color: AppColors.color4),
-                    title: const Text('Login',
-                        style: TextStyle(color: AppColors.color1)),
-                    onTap: () {
-                      Navigator.of(context).pop(); // Close the drawer
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const LoginScreen(),
-                        ),
-                      );
-                    },
-                  ),
-              ],
+              ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
-
-
+          Expanded(
+            child: Container(
+              color: AppColors.color3,
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: <Widget>[
+                  ListTile(
+                    leading:
+                        const Icon(Icons.favorite, color: AppColors.color4),
+                    title: const Text('Favorites',
+                        style: TextStyle(color: AppColors.color1)),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      // Add action for Favorites
+                    },
+                  ),
+                  const Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.person, color: AppColors.color4),
+                    title: const Text('Profile Settings',
+                        style: TextStyle(color: AppColors.color1)),
+                    onTap: () {
+                      Navigator.of(context).pop(); // Close the drawer
+                      if (_isLoggedIn) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                UserSettingsScreen(user: _currentUser),
+                          ),
+                        );
+                      } else {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const LoginScreen(),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  ListTile(
+                    leading:
+                        const Icon(Icons.settings, color: AppColors.color4),
+                    title: const Text('Settings',
+                        style: TextStyle(color: AppColors.color1)),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const SettingsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  if (_isLoggedIn)
+                    ListTile(
+                      leading:
+                          const Icon(Icons.logout, color: AppColors.color4),
+                      title: const Text('Logout',
+                          style: TextStyle(color: AppColors.color1)),
+                      onTap: () {
+                        Navigator.of(context).pop(); // Close the drawer
+                        setState(() {
+                          _isLoggedIn = false; // Update login state
+                        });
+                        // Navigate to LoginScreen
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const LoginScreen(),
+                          ),
+                        );
+                      },
+                    )
+                  else
+                    ListTile(
+                      leading: const Icon(Icons.login, color: AppColors.color4),
+                      title: const Text('Login',
+                          style: TextStyle(color: AppColors.color1)),
+                      onTap: () {
+                        Navigator.of(context).pop(); // Close the drawer
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const LoginScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildOverview() {
     return GridView.builder(
@@ -314,7 +313,6 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
 
         return GestureDetector(
           onTap: () => _goToBlog(blog),
-          
           child: Container(
             decoration: BoxDecoration(
               color: AppColors.color1,
@@ -340,7 +338,7 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
                         blog.title,
                         style: const TextStyle(
                           fontSize: 24,
-                          color: AppColors.color5,
+                          color: AppColors.color3,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -349,7 +347,7 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
                         truncatedGroupName,
                         style: const TextStyle(
                           fontSize: 14,
-                          color: AppColors.color5,
+                          color: AppColors.color3,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -378,7 +376,7 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
                   child: IconButton(
                     icon: Icon(
                       blog.liked ? Icons.favorite : Icons.favorite_border,
-                      color: AppColors.color5,
+                      color: AppColors.color3,
                     ),
                     onPressed: () {
                       setState(() {
@@ -409,7 +407,7 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
   void _showEditBlogDialog(MyBlog blog) {
     TextEditingController titleController =
         TextEditingController(text: blog.title);
-        TextEditingController contentController =
+    TextEditingController contentController =
         TextEditingController(text: blog.content);
     String updatedCategory = blog.category;
 
@@ -491,220 +489,216 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
     );
   }
 
-void _showAddBlogDialog() {
-  final TextEditingController titleController = TextEditingController();
-  final TextEditingController contentController = TextEditingController();
-  String selectedCategory = _categories.first;
-  String selectedGroup = _groups.isNotEmpty ? _groups.first.name : '';
+  void _showAddBlogDialog() {
+    final TextEditingController titleController = TextEditingController();
+    final TextEditingController contentController = TextEditingController();
+    String selectedCategory = _categories.first;
+    String selectedGroup = _groups.isNotEmpty ? _groups.first.name : '';
 
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        backgroundColor: AppColors.color3,
-        title: const Text(
-          'Add Blog',
-          style: TextStyle(color: AppColors.color1),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: titleController,
-              autofocus: true,
-              decoration: InputDecoration(
-                hintText: 'Blog Title',
-                hintStyle: TextStyle(color: AppColors.color1),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.color1),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.color1),
-                ),
-              ),
-              style: TextStyle(color: AppColors.color1),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: contentController,
-              autofocus: true,
-              decoration: InputDecoration(
-                hintText: 'Blog Content',
-                hintStyle: TextStyle(color: AppColors.color1),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.color1),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.color1),
-                ),
-              ),
-              style: TextStyle(color: AppColors.color1),
-            ),
-            const SizedBox(height: 10),
-            DropdownButtonFormField<String>(
-              value: selectedCategory,
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  setState(() {
-                    selectedCategory = newValue;
-                  });
-                }
-              },
-              items: _categories
-                  .map<DropdownMenuItem<String>>((String category) {
-                return DropdownMenuItem<String>(
-                  value: category,
-                  child: Text(
-                    category,
-                    style: TextStyle(color: AppColors.color1),
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppColors.color3,
+          title: const Text(
+            'Add Blog',
+            style: TextStyle(color: AppColors.color1),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleController,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: 'Blog Title',
+                  hintStyle: TextStyle(color: AppColors.color1),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.color1),
                   ),
-                );
-              }).toList(),
-              decoration: InputDecoration(
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.color1),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.color1),
-                ),
-              ),
-              dropdownColor: AppColors.color3,
-              isExpanded: true,
-            ),
-            const SizedBox(height: 10),
-            DropdownButtonFormField<String>(
-              value: selectedGroup,
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  setState(() {
-                    selectedGroup = newValue;
-                  });
-                }
-              },
-              items: _groups.map<DropdownMenuItem<String>>((Group group) {
-                return DropdownMenuItem<String>(
-                  value: group.name,
-                  child: Text(
-                    group.name,
-                    style: TextStyle(color: AppColors.color1),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.color1),
                   ),
-                );
-              }).toList(),
-              decoration: InputDecoration(
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.color1),
                 ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.color1),
-                ),
+                style: TextStyle(color: AppColors.color1),
               ),
-              dropdownColor: AppColors.color3,
-              isExpanded: true,
+              const SizedBox(height: 10),
+              TextField(
+                controller: contentController,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: 'Blog Content',
+                  hintStyle: TextStyle(color: AppColors.color1),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.color1),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.color1),
+                  ),
+                ),
+                style: TextStyle(color: AppColors.color1),
+              ),
+              const SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                value: selectedCategory,
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      selectedCategory = newValue;
+                    });
+                  }
+                },
+                items: _categories
+                    .map<DropdownMenuItem<String>>((String category) {
+                  return DropdownMenuItem<String>(
+                    value: category,
+                    child: Text(
+                      category,
+                      style: TextStyle(color: AppColors.color1),
+                    ),
+                  );
+                }).toList(),
+                decoration: InputDecoration(
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.color1),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.color1),
+                  ),
+                ),
+                dropdownColor: AppColors.color3,
+                isExpanded: true,
+              ),
+              const SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                value: selectedGroup,
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      selectedGroup = newValue;
+                    });
+                  }
+                },
+                items: _groups.map<DropdownMenuItem<String>>((Group group) {
+                  return DropdownMenuItem<String>(
+                    value: group.name,
+                    child: Text(
+                      group.name,
+                      style: TextStyle(color: AppColors.color1),
+                    ),
+                  );
+                }).toList(),
+                decoration: InputDecoration(
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.color1),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.color1),
+                  ),
+                ),
+                dropdownColor: AppColors.color3,
+                isExpanded: true,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: AppColors.color1),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                final newBlog = MyBlog(
+                  id: const Uuid().v4(),
+                  groupName: selectedGroup,
+                  category: selectedCategory,
+                  title: titleController.text,
+                  content: contentController.text,
+                  steps: 0,
+                  altitude: 0,
+                  distance: 0,
+                  liked: false,
+                );
+                setState(() {
+                  _myBlogs.add(newBlog);
+                  _groups
+                      .firstWhere((group) => group.name == selectedGroup)
+                      .myBlogs
+                      .add(newBlog);
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'Add',
+                style: TextStyle(color: AppColors.color1),
+              ),
             ),
           ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: AppColors.color1),
-            ),
+        );
+      },
+    );
+  }
+
+  void _showAddGroupDialog() {
+    final TextEditingController nameController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppColors.color3,
+          title: const Text(
+            'Add Adventure',
+            style: TextStyle(color: AppColors.color1),
           ),
-          TextButton(
-            onPressed: () {
-              final newBlog = MyBlog(
-                id: const Uuid().v4(),
-                groupName: selectedGroup,
-                category: selectedCategory,
-                title: titleController.text,
-                content: contentController.text,
-                steps: 0,
-                altitude: 0,
-                distance: 0,
-                liked: false,
-              );
-              setState(() {
-                _myBlogs.add(newBlog);
-                _groups
-                    .firstWhere((group) => group.name == selectedGroup)
-                    .myBlogs
-                    .add(newBlog);
-              });
-              Navigator.of(context).pop();
-            },
-            child: const Text(
-              'Add',
-              style: TextStyle(color: AppColors.color1),
+          content: TextField(
+            controller: nameController,
+            autofocus: true,
+            decoration: const InputDecoration(
+              hintText: 'Adventure Name',
+              hintStyle: TextStyle(color: AppColors.color1),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: AppColors.color1),
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: AppColors.color1),
+              ),
             ),
+            style: const TextStyle(color: AppColors.color1),
           ),
-        ],
-      );
-    },
-  );
-}
-
-
-
-
-void _showAddGroupDialog() {
-  final TextEditingController nameController = TextEditingController();
-
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        backgroundColor: AppColors.color3,
-        title: const Text(
-          'Add Adventure',
-          style: TextStyle(color: AppColors.color1),
-        ),
-        content: TextField(
-          controller: nameController,
-          autofocus: true,
-          decoration: const InputDecoration(
-            hintText: 'Adventure Name',
-            hintStyle: TextStyle(color: AppColors.color1),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: AppColors.color1),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: AppColors.color1),
+              ),
             ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: AppColors.color1),
+            TextButton(
+              onPressed: () {
+                final newGroup = Group(name: nameController.text);
+                setState(() {
+                  _groups.add(newGroup);
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'Add',
+                style: TextStyle(color: AppColors.color1),
+              ),
             ),
-          ),
-          style: const TextStyle(color: AppColors.color1),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: AppColors.color1),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              final newGroup = Group(name: nameController.text);
-              setState(() {
-                _groups.add(newGroup);
-              });
-              Navigator.of(context).pop();
-            },
-            child: const Text(
-              'Add',
-              style: TextStyle(color: AppColors.color1),
-            ),
-          ),
-        ],
-      );
-    },
-  );
-}
-
+          ],
+        );
+      },
+    );
+  }
 
   Widget _buildAdventure(BuildContext context) {
     return ListView.builder(

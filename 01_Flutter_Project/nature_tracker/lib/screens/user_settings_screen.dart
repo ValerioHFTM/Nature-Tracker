@@ -102,13 +102,13 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
         children: [
           Positioned.fill(
             child: ColorFiltered(
-            colorFilter: const ColorFilter.mode(
-              Color.fromARGB(24, 116, 142, 85), // Desired color
-              BlendMode.srcIn, // Blend mode to apply color
-            ),
-            child: Image.asset(
-              'assets/images/Icon_White.png',
-              fit: BoxFit.cover,
+              colorFilter: const ColorFilter.mode(
+                Color.fromARGB(24, 116, 142, 85), // Desired color
+                BlendMode.srcIn, // Blend mode to apply color
+              ),
+              child: Image.asset(
+                'assets/images/Icon_White.png',
+                fit: BoxFit.cover,
               ),
             ),
           ),
@@ -168,8 +168,8 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                               onTap: _pickImage,
                               child: const CircleAvatar(
                                 radius: 50,
-                                backgroundImage:
-                                    AssetImage('assets/images/default_avatar.png'),
+                                backgroundImage: AssetImage(
+                                    'assets/images/default_avatar.png'),
                               ),
                             ),
                           const SizedBox(height: 20),
@@ -354,5 +354,3 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
     );
   }
 }
-
-
