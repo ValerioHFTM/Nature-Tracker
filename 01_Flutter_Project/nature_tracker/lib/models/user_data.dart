@@ -4,16 +4,16 @@ import 'package:uuid/uuid.dart';
 enum Gender { male, female, others }
 
 class UserData {
-  final String id;
-   String username;
-   String firstname;
-   String lastname;
-   String email;
-   Gender gender;
-   DateTime age;
-   String description;
-   List<String> imageUrls; // Profile pictures
-   String password;
+  String id;
+  String username;
+  String firstname;
+  String lastname;
+  String email;
+  Gender gender;
+  DateTime age;
+  String description;
+  List<String> imageUrls; // Profile pictures
+  String password;
 
   UserData({
     required this.username,
@@ -36,7 +36,8 @@ class UserData {
       lastname: map['lastname'],
       email: map['email'],
       gender: Gender.values[map['gender']], // Assumes index mapping
-      age: DateTime.parse(map['age']), // Assumes age is stored as an ISO 8601 string
+      age: DateTime.parse(
+          map['age']), // Assumes age is stored as an ISO 8601 string
       description: map['description'],
       imageUrls: List<String>.from(map['imageUrls'] ?? []),
       password: map['password'],
@@ -55,10 +56,7 @@ class UserData {
       'age': age.toIso8601String(), // Store age as an ISO 8601 string
       'description': description,
       'imageUrls': imageUrls,
-      'password' : password,
+      'password': password,
     };
   }
 }
-
-
-

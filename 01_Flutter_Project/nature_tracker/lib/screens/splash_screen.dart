@@ -23,16 +23,33 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    // Delay of 5 seconds and navigate to the MainScreen
-    Future.delayed(const Duration(seconds: 5), () {
-      getAdventures();
-      getBlogs();
-      getUsers();
+    // Initialize data asynchronously
+    initializeData();
+  }
 
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => MainScreen(false, "loggedOut")),
-      );
-    });
+  Future<void> initializeData() async {
+    try {
+      // Fetch adventures and blogs
+      await getAdventures();
+      await getBlogs();
+
+      // Fetch and update users
+      final users = await getUsers(); // Await the result here
+      for (var user in users) {
+        UserManager.instance.addUser(user);
+      }
+
+      // Navigate to the main screen after a delay
+      Future.delayed(const Duration(seconds: 5), () {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+              builder: (context) => MainScreen(false, "loggedOut")),
+        );
+      });
+    } catch (e) {
+      // Handle error (e.g., show a message to the user)
+      print('Failed to initialize data: $e');
+    }
   }
 
   @override

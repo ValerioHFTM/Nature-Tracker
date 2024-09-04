@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:nature_tracker/backend/blog_service.dart';
 import 'package:nature_tracker/models/app_colors.dart';
 import 'package:nature_tracker/models/my_blog.dart';
 import 'package:pedometer/pedometer.dart';
@@ -157,6 +158,15 @@ class _BlogScreenState extends State<BlogScreen> {
             content: Text('Changes saved!'),
           ),
         );
+
+        // Call the updateBlog function to save changes to the backend
+        updateBlog(widget.blog).catchError((error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to save changes: $error'),
+            ),
+          );
+        });
       }
     });
   }
@@ -418,47 +428,72 @@ class _BlogScreenState extends State<BlogScreen> {
                                 width: double.infinity,
                               ),
                             ),
-                          for (int i = 0; i < contentChunks.length; i++) ...[
-                            Text(
-                              contentChunks[i],
+                          if (_isEditing)
+                            TextFormField(
+                              controller: _contentController,
+                              decoration: const InputDecoration(
+                                labelText: 'Content',
+                                labelStyle: TextStyle(
+                                  color: Colors.black,
+                                ),
+                                border: OutlineInputBorder(),
+                              ),
+                              maxLines:
+                                  null, // Allows for multiple lines of text
                               style: const TextStyle(
                                 fontSize: 18.0,
                                 color: Colors.black,
                               ),
-                            ),
-                            const SizedBox(height: 10),
-                            if (i == 0 && middleImages.isNotEmpty)
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10.0),
-                                child: SizedBox(
-                                  height: 200,
-                                  child: ListView.builder(
-                                    scrollDirection: Axis.horizontal,
-                                    itemCount: middleImages.length,
-                                    itemBuilder: (context, index) {
-                                      final imageFile =
-                                          File(middleImages[index]);
-                                      return GestureDetector(
-                                        onTap: () => _showImageDialog(
-                                            context, imageFile),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 4.0),
-                                          child: Image.file(
-                                            imageFile,
-                                            fit: BoxFit.cover,
-                                            width: 200,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter content';
+                                }
+                                return null;
+                              },
+                            )
+                          else
+                            for (int i = 0; i < contentChunks.length; i++) ...[
+                              Text(
+                                contentChunks[i],
+                                style: const TextStyle(
+                                  fontSize: 18.0,
+                                  color: Colors.black,
                                 ),
                               ),
-                            if (i < contentChunks.length - 1)
                               const SizedBox(height: 10),
-                          ],
+                              if (i == 0 && middleImages.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10.0),
+                                  child: SizedBox(
+                                    height: 200,
+                                    child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: middleImages.length,
+                                      itemBuilder: (context, index) {
+                                        final imageFile =
+                                            File(middleImages[index]);
+                                        return GestureDetector(
+                                          onTap: () => _showImageDialog(
+                                              context, imageFile),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 4.0),
+                                            child: Image.file(
+                                              imageFile,
+                                              fit: BoxFit.cover,
+                                              width: 200,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              if (i < contentChunks.length - 1)
+                                const SizedBox(height: 10),
+                            ],
+
                           if (lastImage != null)
                             Padding(
                               padding: const EdgeInsets.only(top: 10.0),
@@ -598,7 +633,9 @@ class _BlogScreenState extends State<BlogScreen> {
                   children: [
                     if (_isMenuOpen) ...[
                       FloatingActionButton(
-                        backgroundColor: AppColors.color4,
+                        backgroundColor: _isEditing
+                            ? AppColors.greenColor
+                            : AppColors.color4,
                         onPressed: _toggleEditing,
                         child: Icon(
                           _isEditing ? Icons.save : Icons.edit,

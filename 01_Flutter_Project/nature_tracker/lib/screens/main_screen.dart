@@ -34,23 +34,72 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   final List<MyBlog> _myBlogs = [];
   final List<String> _categories = ['Hike', 'Overnighter', 'Nature', 'Travel'];
-  late Future<List<Adventure>> _adventures;
+  late List<Adventure> _adventures;
+  late List<UserData> _users;
+  late List<MyBlog> _blogs;
   late bool _isLoggedIn;
   late UserData? _currentUser;
 
   @override
   void initState() {
     super.initState();
-    _initializeAdventures();
-    _initializeUser();
+    _initializeData();
+    _initializeDataFuture();
   }
 
-  void _initializeUser() {
+  // Method to initialize all data
+  void _initializeData() {
+    _initializeAdventures();
+    _initializeUsers();
+    _initializeBlogs();
+    _checkLoggedInUser();
+  }
+
+  Future<void> _initializeDataFuture() async {
+    try {
+      final adventuresFuture = getAdventures();
+      final usersFuture = getUsers();
+      final blogsFuture = getBlogs();
+
+      // Await all futures
+      final List<Adventure> adventures = await adventuresFuture;
+      final List<UserData> users = await usersFuture;
+      final List<MyBlog> blogs = await blogsFuture;
+
+      setState(() {
+        _adventures = adventures;
+        _users = users;
+        _blogs = blogs;
+      });
+    } catch (error) {
+      print('Error initializing data: $error');
+    }
+  }
+
+  // Initialize Adventures
+  void _initializeAdventures() {
+    _adventures = getInitializedAdventure();
+  }
+
+  // Initialize Users
+  void _initializeUsers() {
+    _users = getInitializeduser();
+  }
+
+  // Initialize Blogs
+  void _initializeBlogs() {
+    _blogs = getInitializedBlogs();
+    _myBlogs.addAll(_blogs);
+  }
+
+  // Check if the user is logged in based on the initialized users
+  void _checkLoggedInUser() {
     try {
       // Attempt to find the user by username
-      _currentUser = UserManager.instance.registeredUsers
-          .firstWhere((user) => user.username == widget.userName);
-      _isLoggedIn = true; // User found, so user is logged in
+      _currentUser = _users.firstWhere(
+        (user) => user.username == widget.userName,
+      );
+      _isLoggedIn = true; // User found, so set _isLoggedIn to true
     } catch (e) {
       // If no user is found, handle the case
       _currentUser = null; // Set _currentUser to null
@@ -58,8 +107,10 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+/*
   void _initializeAdventures() {
-    _adventures = getAdventures();
+    _blogs = getInitializedBlogs();
+    _adventures = getInitializedAdventure();
     final demoGroup = Adventure(name: 'Demo Adventure ', id: "dummyID");
 
     final demoMyBlog = MyBlog(
@@ -91,6 +142,7 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
       distance: 5000,
       liked: false,
     );
+    saveBlog(demoMyBlog); // Ill only do this once, then i can delete it from here and get it via the backend
 
     demoGroup.myBlogs.add(demoMyBlog);
 
@@ -99,7 +151,7 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
       _myBlogs.add(demoMyBlog);
     });
   }
-
+*/
   void _logout() {
     setState(() {
       _isLoggedIn = false; // Update login state
@@ -107,20 +159,16 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
   }
 
   void _goToBlog(MyBlog blog) {
-    setState(() {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => BlogScreen(blog: blog)),
-      );
-    });
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => BlogScreen(blog: blog)),
+    );
   }
 
   void _goToAdventureBlog(MyBlog blog, Adventure group) {
-    setState(() {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-            builder: (context) => GroupDetailScreen(group: group, blog: blog)),
-      );
-    });
+    Navigator.of(context).push(
+      MaterialPageRoute(
+          builder: (context) => GroupDetailScreen(group: group, blog: blog)),
+    );
   }
 
   void _onItemTapped(int index) {
@@ -423,6 +471,11 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
     String selectedCategory = _categories.first;
     String selectedGroup = ''; // Default empty string for the initial selection
 
+    // Use the already initialized _adventures directly
+    if (_adventures.isNotEmpty) {
+      selectedGroup = _adventures.first.name;
+    }
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -432,120 +485,103 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
             'Add Blog',
             style: TextStyle(color: AppColors.color1),
           ),
-          content: FutureBuilder<List<Adventure>>(
-            future: _adventures, // Use the Future here
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(child: Text('No adventures available.'));
-              } else {
-                final adventures = snapshot.data!;
-                selectedGroup =
-                    adventures.isNotEmpty ? adventures.first.name : '';
-
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: titleController,
-                      autofocus: true,
-                      decoration: const InputDecoration(
-                        hintText: 'Blog Title',
-                        hintStyle: TextStyle(color: AppColors.color1),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.color1),
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.color1),
-                        ),
-                      ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleController,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  hintText: 'Blog Title',
+                  hintStyle: TextStyle(color: AppColors.color1),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.color1),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.color1),
+                  ),
+                ),
+                style: const TextStyle(color: AppColors.color1),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: contentController,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  hintText: 'Blog Content',
+                  hintStyle: TextStyle(color: AppColors.color1),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.color1),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.color1),
+                  ),
+                ),
+                style: const TextStyle(color: AppColors.color1),
+              ),
+              const SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                value: selectedCategory,
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      selectedCategory = newValue;
+                    });
+                  }
+                },
+                items: _categories
+                    .map<DropdownMenuItem<String>>((String category) {
+                  return DropdownMenuItem<String>(
+                    value: category,
+                    child: Text(
+                      category,
                       style: const TextStyle(color: AppColors.color1),
                     ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: contentController,
-                      autofocus: true,
-                      decoration: const InputDecoration(
-                        hintText: 'Blog Content',
-                        hintStyle: TextStyle(color: AppColors.color1),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.color1),
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.color1),
-                        ),
-                      ),
+                  );
+                }).toList(),
+                decoration: const InputDecoration(
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.color1),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.color1),
+                  ),
+                ),
+                dropdownColor: AppColors.color3,
+                isExpanded: true,
+              ),
+              const SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                value: selectedGroup,
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      selectedGroup = newValue;
+                    });
+                  }
+                },
+                items: _adventures
+                    .map<DropdownMenuItem<String>>((Adventure adventure) {
+                  return DropdownMenuItem<String>(
+                    value: adventure.name,
+                    child: Text(
+                      adventure.name,
                       style: const TextStyle(color: AppColors.color1),
                     ),
-                    const SizedBox(height: 10),
-                    DropdownButtonFormField<String>(
-                      value: selectedCategory,
-                      onChanged: (String? newValue) {
-                        if (newValue != null) {
-                          setState(() {
-                            selectedCategory = newValue;
-                          });
-                        }
-                      },
-                      items: _categories
-                          .map<DropdownMenuItem<String>>((String category) {
-                        return DropdownMenuItem<String>(
-                          value: category,
-                          child: Text(
-                            category,
-                            style: const TextStyle(color: AppColors.color1),
-                          ),
-                        );
-                      }).toList(),
-                      decoration: const InputDecoration(
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.color1),
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.color1),
-                        ),
-                      ),
-                      dropdownColor: AppColors.color3,
-                      isExpanded: true,
-                    ),
-                    const SizedBox(height: 10),
-                    DropdownButtonFormField<String>(
-                      value: selectedGroup,
-                      onChanged: (String? newValue) {
-                        if (newValue != null) {
-                          setState(() {
-                            selectedGroup = newValue;
-                          });
-                        }
-                      },
-                      items: adventures
-                          .map<DropdownMenuItem<String>>((Adventure adventure) {
-                        return DropdownMenuItem<String>(
-                          value: adventure.name,
-                          child: Text(
-                            adventure.name,
-                            style: const TextStyle(color: AppColors.color1),
-                          ),
-                        );
-                      }).toList(),
-                      decoration: const InputDecoration(
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.color1),
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.color1),
-                        ),
-                      ),
-                      dropdownColor: AppColors.color3,
-                      isExpanded: true,
-                    ),
-                  ],
-                );
-              }
-            },
+                  );
+                }).toList(),
+                decoration: const InputDecoration(
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.color1),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.color1),
+                  ),
+                ),
+                dropdownColor: AppColors.color3,
+                isExpanded: true,
+              ),
+            ],
           ),
           actions: [
             TextButton(
@@ -570,13 +606,19 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
                   distance: 0,
                   liked: false,
                 );
-                saveBlog(newBlog); // Ensure blog is saved
-                setState(() {
-                  _myBlogs.add(newBlog);
-                  // Update _adventures to reflect new data if necessary
-                });
 
-                Navigator.of(context).pop();
+                try {
+                  await saveBlog(newBlog); // Ensure blog is saved
+                  setState(() {
+                    _myBlogs.add(newBlog);
+                    // Optionally, update _adventures or other state if necessary
+                  });
+
+                  Navigator.of(context).pop();
+                } catch (error) {
+                  // Handle error if saveBlog fails
+                  print('Error saving blog: $error');
+                }
               },
               child: const Text(
                 'Add',
@@ -638,7 +680,8 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
 
                 // Fetch and refresh the adventure list
                 setState(() {
-                  _adventures = getAdventures(); // Refresh the adventure list
+                  _adventures =
+                      getInitializedAdventure(); // Refresh the adventure list
                 });
 
                 Navigator.of(context).pop();
@@ -655,55 +698,45 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
   }
 
   Widget _buildAdventure(BuildContext context) {
-    return FutureBuilder<List<Adventure>>(
-      future: _adventures, // Use the Future here
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('No adventures found.'));
-        } else {
-          final adventures = snapshot.data!;
+    // Check if _adventures is empty and show a message if it is
+    if (_adventures.isEmpty) {
+      return Center(child: Text('No adventures found.'));
+    }
 
-          return ListView.builder(
+    return ListView.builder(
+      padding: const EdgeInsets.all(10.0),
+      itemCount: _adventures.length,
+      itemBuilder: (context, index) {
+        final adventure = _adventures[index];
+
+        return GestureDetector(
+          onTap: () {
+            // Your navigation code
+          },
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 10),
             padding: const EdgeInsets.all(10.0),
-            itemCount: adventures.length,
-            itemBuilder: (context, index) {
-              final group = adventures[index];
-
-              return GestureDetector(
-                onTap: () {
-                  // Your navigation code
-                },
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(10.0),
-                  decoration: BoxDecoration(
-                    color: AppColors.color1,
-                    borderRadius: BorderRadius.circular(8.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.color3.withOpacity(0.2),
-                        spreadRadius: 2,
-                        blurRadius: 5,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Text(
-                    group.name,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      color: AppColors.color5,
-                    ),
-                  ),
+            decoration: BoxDecoration(
+              color: AppColors.color1,
+              borderRadius: BorderRadius.circular(8.0),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.color3.withOpacity(0.2),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
                 ),
-              );
-            },
-          );
-        }
+              ],
+            ),
+            child: Text(
+              adventure.name,
+              style: const TextStyle(
+                fontSize: 18,
+                color: AppColors.color5,
+              ),
+            ),
+          ),
+        );
       },
     );
   }

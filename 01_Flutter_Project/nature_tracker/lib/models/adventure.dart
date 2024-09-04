@@ -5,5 +5,8 @@ class Adventure {
   final String id;
   final List<MyBlog> myBlogs;
 
-  Adventure({required this.name, required this.id}) : myBlogs = [];
+  Adventure({
+    required this.name,
+    required this.id,
+  }) : myBlogs = [];
 }

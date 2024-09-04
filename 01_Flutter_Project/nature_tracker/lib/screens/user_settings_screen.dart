@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:nature_tracker/backend/blog_service.dart';
 import 'package:nature_tracker/models/app_colors.dart';
 import 'package:nature_tracker/models/user_data.dart';
 
@@ -50,23 +51,34 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
     super.dispose();
   }
 
-  void _toggleEditing() {
+  void _toggleEditing() async {
     setState(() {
       _isEditing = !_isEditing;
+
       if (!_isEditing) {
-        widget.user?.username = _usernameController.text;
-        widget.user?.firstname = _firstnameController.text;
-        widget.user?.lastname = _lastnameController.text;
-        widget.user?.email = _emailController.text;
-        widget.user?.description = _descriptionController.text;
-        widget.user?.age = _age;
-        widget.user?.gender = _gender as Gender;
-        widget.user?.imageUrls = _imageUrls;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile updated successfully!'),
-          ),
-        );
+        final user = widget.user;
+
+        if (user != null) {
+          // Update the user details
+          user.username = _usernameController.text;
+          user.firstname = _firstnameController.text;
+          user.lastname = _lastnameController.text;
+          user.email = _emailController.text;
+          user.description = _descriptionController.text;
+          user.age = _age;
+          user.gender = _gender as Gender;
+          user.imageUrls = _imageUrls;
+
+          // Show a SnackBar indicating that the changes are being saved
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Saving changes...'),
+            ),
+          );
+
+          // Call the updateUser function to save changes to the backend
+          updateUser(user);
+        }
       }
     });
   }

@@ -118,7 +118,9 @@ The app will also focus on hardware and sensors:
 - **Microphone:** Not Yet Implemented. Not sure if I will.
 
 
-
+# 8 Backend User Login
+The Userlogin works now as before. The Backend takes a lot of time.
+The Content editing is activated again on the blogs and it PUTs the changed data to the backend.
 
 
 
