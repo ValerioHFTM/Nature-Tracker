@@ -169,7 +169,7 @@ List<Adventure> getInitializedAdventure() {
 Future<void> updateAdventure(Adventure adventure) async {
   final url = Uri.https(
     'nature-tracker-vbot-default-rtdb.europe-west1.firebasedatabase.app',
-    'Adventures/${adventure.id}.json', // Assuming the ID is part of the URL
+    'Adventures/${adventure.id}.json',
   );
 
   final response = await http.put(
@@ -188,7 +188,7 @@ Future<void> updateAdventure(Adventure adventure) async {
 Future<void> updateBlog(MyBlog blog) async {
   final url = Uri.https(
     'nature-tracker-vbot-default-rtdb.europe-west1.firebasedatabase.app',
-    'blogs/${blog.id}.json', // Assuming the ID is part of the URL
+    'blogs/${blog.id}.json',
   );
 
   final response = await http.put(
@@ -213,10 +213,23 @@ Future<void> updateBlog(MyBlog blog) async {
   }
 }
 
+Future<void> deleteBlog(MyBlog blog) async {
+  final url = Uri.https(
+    'nature-tracker-vbot-default-rtdb.europe-west1.firebasedatabase.app',
+    'blogs/${blog.id}.json',
+  );
+
+  final response = await http.delete(url);
+  print(blog.id);
+  if (response.statusCode != 200) {
+    throw Exception('Failed to delete blog');
+  }
+}
+
 Future<void> updateUser(UserData user) async {
   final url = Uri.https(
     'nature-tracker-vbot-default-rtdb.europe-west1.firebasedatabase.app',
-    'users/${user.id}.json', // Assuming the ID is part of the URL
+    'users/${user.id}.json',
   );
 
   final response = await http.put(

@@ -65,7 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 elevation: 6.0,
                 centerTitle: true,
                 leading: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: AppColors.color1),
+                  icon: Icon(Icons.arrow_back, color: AppColors.color1),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -102,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Text(
+                                      Text(
                                         'Login',
                                         style: TextStyle(
                                           fontSize: 24,
@@ -120,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                             // Username Field
                                             TextFormField(
                                               controller: _usernameController,
-                                              decoration: const InputDecoration(
+                                              decoration: InputDecoration(
                                                 labelText: 'Username',
                                                 hintText: 'Enter your username',
                                                 hintStyle: TextStyle(
@@ -139,13 +139,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                                       color: AppColors
                                                           .color3), // Border color when focused
                                                 ),
-                                                errorBorder: OutlineInputBorder(
+                                                errorBorder:
+                                                    const OutlineInputBorder(
                                                   borderSide: BorderSide(
                                                       color: Colors
                                                           .red), // Border color when there's an error
                                                 ),
                                                 focusedErrorBorder:
-                                                    OutlineInputBorder(
+                                                    const OutlineInputBorder(
                                                   borderSide: BorderSide(
                                                       color: Colors
                                                           .red), // Border color when focused and there's an error
@@ -173,7 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                             TextFormField(
                                               controller: _passwordController,
                                               obscureText: true,
-                                              decoration: const InputDecoration(
+                                              decoration: InputDecoration(
                                                 labelText: 'Password',
                                                 hintText: 'Enter your password',
                                                 hintStyle: TextStyle(
@@ -192,13 +193,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                                       color: AppColors
                                                           .color3), // Border color when focused
                                                 ),
-                                                errorBorder: OutlineInputBorder(
+                                                errorBorder:
+                                                    const OutlineInputBorder(
                                                   borderSide: BorderSide(
                                                       color: Colors
                                                           .red), // Border color when there's an error
                                                 ),
                                                 focusedErrorBorder:
-                                                    OutlineInputBorder(
+                                                    const OutlineInputBorder(
                                                   borderSide: BorderSide(
                                                       color: Colors
                                                           .red), // Border color when focused and there's an error
@@ -248,7 +250,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         const SizedBox(height: 10),
                                         Text(
                                           _errorMessage!,
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                               color: AppColors.color3),
                                         ),
                                       ],

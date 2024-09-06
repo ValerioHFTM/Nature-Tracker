@@ -43,7 +43,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Future.delayed(const Duration(seconds: 5), () {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-              builder: (context) => MainScreen(false, "loggedOut")),
+              builder: (context) => const MainScreen(false, "loggedOut")),
         );
       });
     } catch (e) {
@@ -66,12 +66,12 @@ class _SplashScreenState extends State<SplashScreen> {
               width: 350.0, // Adjust size as needed
             ),
             const SizedBox(height: 20),
-            const CircularProgressIndicator(
+            CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(
                   AppColors.color5), // Change color here
             ),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'Verbindung wird hergestellt...',
               style: TextStyle(
                 fontSize: 16,

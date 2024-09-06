@@ -131,7 +131,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                 elevation: 6.0,
                 centerTitle: true,
                 leading: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: AppColors.color1),
+                  icon: Icon(Icons.arrow_back, color: AppColors.color1),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -347,7 +347,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                 child: Center(
                   child: Text(
                     widget.user!.username,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.color5,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,

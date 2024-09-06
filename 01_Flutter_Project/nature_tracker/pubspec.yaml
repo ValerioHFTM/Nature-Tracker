@@ -29,6 +29,7 @@ dependencies:
   google_fonts: ^2.1.0
   battery_plus: ^6.0.3
   http: ^0.13.6
+  mailer: ^6.1.2
   
 
 

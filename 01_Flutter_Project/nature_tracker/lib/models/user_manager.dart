@@ -15,7 +15,8 @@ class UserManager {
 
   // Validate user credentials
   bool validateCredentials(String username, String password) {
-    return _registeredUsers.any((user) => user.username == username && user.password == password);
+    return _registeredUsers
+        .any((user) => user.username == username && user.password == password);
   }
 
   // Public getter to access the list of registered users

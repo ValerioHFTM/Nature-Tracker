@@ -4,8 +4,8 @@ import 'package:nature_tracker/models/adventure.dart';
 import 'package:nature_tracker/models/my_blog.dart';
 
 class GroupDetailScreen extends StatefulWidget {
-  const GroupDetailScreen({super.key, required this.blog, required this.group});
-  final MyBlog blog;
+  const GroupDetailScreen({super.key, required this.group});
+
   final Adventure group;
 
   @override
@@ -38,7 +38,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                 elevation: 6.0,
                 centerTitle: true,
                 leading: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: AppColors.color1),
+                  icon: Icon(Icons.arrow_back, color: AppColors.color1),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -94,7 +94,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                                 children: [
                                   Text(
                                     blog.title,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 24,
                                       color: AppColors.color3,
                                     ),
@@ -103,7 +103,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                                   const SizedBox(height: 10),
                                   Text(
                                     truncatedGroupName,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 14,
                                       color: AppColors.color3,
                                     ),
@@ -120,7 +120,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                                     horizontal: 6.0, vertical: 4.0),
                                 child: Text(
                                   blog.category,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: AppColors.color5,
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
@@ -158,7 +158,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                 child: Center(
                   child: Text(
                     widget.group.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.color5,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,

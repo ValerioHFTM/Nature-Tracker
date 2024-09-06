@@ -22,6 +22,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsState extends State<SettingsScreen> {
+  bool _isDarkMode = AppColors.isDarkMode;
   final Battery _battery = Battery();
   late StreamSubscription<BatteryState> _batterySubscription;
   int _batteryLevel = 0; // Store battery level
@@ -64,7 +65,7 @@ class _SettingsState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.color3.withOpacity(0.5),
       body: Stack(
         children: [
           Positioned.fill(
@@ -86,7 +87,7 @@ class _SettingsState extends State<SettingsScreen> {
                 elevation: 6.0,
                 centerTitle: true,
                 leading: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: AppColors.color1),
+                  icon: Icon(Icons.arrow_back, color: AppColors.color1),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -103,6 +104,10 @@ class _SettingsState extends State<SettingsScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
+                    constraints: const BoxConstraints(
+                      minWidth: double.infinity,
+                      minHeight: 200.0,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.color1,
                       borderRadius: BorderRadius.circular(8.0),
@@ -115,58 +120,93 @@ class _SettingsState extends State<SettingsScreen> {
                         ),
                       ],
                     ),
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("data"),
-                        ],
-                      ),
+                    child: Column(
+                      children: [
+                        // Dark Mode Switch Row at the Top
+                        Align(
+                          alignment: Alignment.topCenter,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Dark Mode',
+                                  style: TextStyle(
+                                    color: AppColors.color5,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Switch(
+                                  value: _isDarkMode,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _isDarkMode = value;
+                                      AppColors.darkMode(_isDarkMode);
+                                    });
+                                  },
+                                  activeColor: AppColors.greenColor,
+                                  inactiveThumbColor: AppColors.redColor,
+                                  inactiveTrackColor:
+                                      AppColors.redColor.withOpacity(0.5),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        // Expanded SingleChildScrollView
+                        const Expanded(
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
-
-              // Footer Styled Part
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  color: AppColors.color3,
-                  padding: const EdgeInsets.all(10.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            ],
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              color: AppColors.color3,
+              padding: const EdgeInsets.all(10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Author Information
+                  Text(
+                    'Settings',
+                    style: TextStyle(
+                      color: AppColors.color1,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  // Battery Icon and Level
+                  Row(
                     children: [
-                      // Author Information
+                      _getBatteryIcon(_batteryLevel),
+                      const SizedBox(width: 8),
                       Text(
-                        'author.username',
+                        '$_batteryLevel%', // Display battery level
                         style: TextStyle(
                           color: AppColors.color1,
                           fontSize: 16,
-                          fontWeight: FontWeight.bold,
                         ),
-                      ),
-                      // Battery Icon and Level
-                      Row(
-                        children: [
-                          _getBatteryIcon(_batteryLevel),
-                          const SizedBox(width: 8),
-                          Text(
-                            '$_batteryLevel%', // Display battery level
-                            style: TextStyle(
-                              color: AppColors.color1,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
                       ),
                     ],
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ],
       ),

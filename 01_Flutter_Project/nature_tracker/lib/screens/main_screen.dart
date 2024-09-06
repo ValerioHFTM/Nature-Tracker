@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -21,16 +23,18 @@ import 'package:nature_tracker/screens/settings_screen.dart';
 import 'package:uuid/uuid.dart';
 
 class MainScreen extends StatefulWidget {
-  MainScreen(this.isLoggedIn, this.userName, {Key? key}) : super(key: key);
+  const MainScreen(this.isLoggedIn, this.userName, {super.key});
 
   final bool isLoggedIn;
   final String userName;
+  static bool? gotPopped;
 
   @override
   _MainScreenState createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
+  late Timer _timer;
   int _selectedIndex = 0;
   final List<MyBlog> _myBlogs = [];
   final List<String> _categories = ['Hike', 'Overnighter', 'Nature', 'Travel'];
@@ -38,6 +42,7 @@ class _MainScreenState extends State<MainScreen> {
   late List<UserData> _users;
   late List<MyBlog> _blogs;
   late bool _isLoggedIn;
+
   late UserData? _currentUser;
 
   @override
@@ -45,6 +50,20 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _initializeData();
     _initializeDataFuture();
+    _startTimer();
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(Duration(milliseconds: 200), (Timer timer) {
+      _updateState();
+    });
+  }
+
+  void _updateState() {
+    // Example state update
+    setState(() {
+      _initializeDataFuture();
+    });
   }
 
   // Method to initialize all data
@@ -57,22 +76,20 @@ class _MainScreenState extends State<MainScreen> {
 
   Future<void> _initializeDataFuture() async {
     try {
-      final adventuresFuture = getAdventures();
-      final usersFuture = getUsers();
-      final blogsFuture = getBlogs();
+      // Fetch adventures and blogs
+      await getAdventures();
+      await getBlogs();
 
-      // Await all futures
-      final List<Adventure> adventures = await adventuresFuture;
-      final List<UserData> users = await usersFuture;
-      final List<MyBlog> blogs = await blogsFuture;
+      // Fetch and update users
+      final users = await getUsers(); // Await the result here
+      for (var user in users) {
+        UserManager.instance.addUser(user);
+      }
 
-      setState(() {
-        _adventures = adventures;
-        _users = users;
-        _blogs = blogs;
-      });
-    } catch (error) {
-      print('Error initializing data: $error');
+      initState();
+    } catch (e) {
+      // Handle error (e.g., show a message to the user)
+      print('Failed to initialize data: $e');
     }
   }
 
@@ -92,6 +109,24 @@ class _MainScreenState extends State<MainScreen> {
     _myBlogs.addAll(_blogs);
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    refreshBlogs();
+    setState(() {});
+  }
+
+  Future<void> refreshBlogs() async {
+    try {
+      final blogs = await getBlogs();
+      setState(() {
+        _blogs = blogs;
+      });
+    } catch (error) {
+      print('Error refreshing blogs: $error');
+    }
+  }
+
   // Check if the user is logged in based on the initialized users
   void _checkLoggedInUser() {
     try {
@@ -107,67 +142,17 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-/*
-  void _initializeAdventures() {
-    _blogs = getInitializedBlogs();
-    _adventures = getInitializedAdventure();
-    final demoGroup = Adventure(name: 'Demo Adventure ', id: "dummyID");
-
-    final demoMyBlog = MyBlog(
-      id: const Uuid().v4(),
-      groupName: demoGroup.name,
-      category: _categories[2],
-      title: 'Exploring the Outdoors',
-      content: '''
-Exploring the depths of the forest, we encountered a myriad of fascinating wildlife. The trees, towering above, created a natural canopy that filtered the sunlight into gentle beams.
-
-After hours of hiking, we reached a serene clearing.
-
-**The view was breathtaking.**
-
-The sounds of nature surrounded us, a symphony of chirping birds and rustling leaves.
-
-We took a moment to catch our breath.
-
-As we continued our journey, we came across a small stream, its water clear and cool to the touch.
-
-**It was the perfect spot to rest.**
-
-With renewed energy, we pressed on, our footsteps steady and our spirits high.
-
-The trail ahead promised more discoveries, and we were eager to see what lay beyond the next bend.
-  ''',
-      steps: 7500,
-      altitude: 1500,
-      distance: 5000,
-      liked: false,
-    );
-    saveBlog(demoMyBlog); // Ill only do this once, then i can delete it from here and get it via the backend
-
-    demoGroup.myBlogs.add(demoMyBlog);
-
-    setState(() {
-      //_adventures.add(demoGroup);
-      _myBlogs.add(demoMyBlog);
-    });
-  }
-*/
-  void _logout() {
-    setState(() {
-      _isLoggedIn = false; // Update login state
-    });
-  }
-
-  void _goToBlog(MyBlog blog) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => BlogScreen(blog: blog)),
-    );
-  }
-
-  void _goToAdventureBlog(MyBlog blog, Adventure group) {
+  void _goToBlog(MyBlog blog, bool isLoggedIn, String currentUser) {
     Navigator.of(context).push(
       MaterialPageRoute(
-          builder: (context) => GroupDetailScreen(group: group, blog: blog)),
+          builder: (context) =>
+              BlogScreen(blog: blog, status: isLoggedIn, user: currentUser)),
+    );
+  }
+
+  void _goToAdventureBlog(Adventure group) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => GroupDetailScreen(group: group)),
     );
   }
 
@@ -186,14 +171,14 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.color3,
+      backgroundColor: AppColors.color5,
       drawer: _buildDrawer(context),
       body: Stack(
         children: [
           Positioned.fill(
             child: ColorFiltered(
-              colorFilter: const ColorFilter.mode(
-                Color.fromARGB(24, 116, 142, 85), // Desired color
+              colorFilter: ColorFilter.mode(
+                AppColors.color3.withOpacity(0.2), // Desired color
                 BlendMode.srcIn, // Blend mode to apply color
               ),
               child: Image.asset(
@@ -208,7 +193,7 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
                 backgroundColor: AppColors.color1,
                 elevation: 6.0,
                 centerTitle: true,
-                iconTheme: const IconThemeData(color: AppColors.color3),
+                iconTheme: IconThemeData(color: AppColors.color3),
                 title: SizedBox(
                   height: 40,
                   child: Image.asset(
@@ -260,7 +245,7 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
           SizedBox(
             height: 150.0,
             child: DrawerHeader(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.color1,
               ),
               child: Align(
@@ -280,9 +265,8 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
                 padding: EdgeInsets.zero,
                 children: <Widget>[
                   ListTile(
-                    leading:
-                        const Icon(Icons.favorite, color: AppColors.color4),
-                    title: const Text('Favorites',
+                    leading: Icon(Icons.favorite, color: AppColors.color4),
+                    title: Text('Favorites',
                         style: TextStyle(color: AppColors.color1)),
                     onTap: () {
                       Navigator.of(context).pop();
@@ -291,8 +275,8 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
                   ),
                   const Divider(),
                   ListTile(
-                    leading: const Icon(Icons.person, color: AppColors.color4),
-                    title: const Text('Profile Settings',
+                    leading: Icon(Icons.person, color: AppColors.color4),
+                    title: Text('Profile Settings',
                         style: TextStyle(color: AppColors.color1)),
                     onTap: () {
                       Navigator.of(context).pop(); // Close the drawer
@@ -313,9 +297,8 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
                     },
                   ),
                   ListTile(
-                    leading:
-                        const Icon(Icons.settings, color: AppColors.color4),
-                    title: const Text('Settings',
+                    leading: Icon(Icons.settings, color: AppColors.color4),
+                    title: Text('Settings',
                         style: TextStyle(color: AppColors.color1)),
                     onTap: () {
                       Navigator.of(context).push(
@@ -327,9 +310,8 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
                   ),
                   if (_isLoggedIn)
                     ListTile(
-                      leading:
-                          const Icon(Icons.logout, color: AppColors.color4),
-                      title: const Text('Logout',
+                      leading: Icon(Icons.logout, color: AppColors.color4),
+                      title: Text('Logout',
                           style: TextStyle(color: AppColors.color1)),
                       onTap: () {
                         Navigator.of(context).pop(); // Close the drawer
@@ -346,8 +328,8 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
                     )
                   else
                     ListTile(
-                      leading: const Icon(Icons.login, color: AppColors.color4),
-                      title: const Text('Login',
+                      leading: Icon(Icons.login, color: AppColors.color4),
+                      title: Text('Login',
                           style: TextStyle(color: AppColors.color1)),
                       onTap: () {
                         Navigator.of(context).pop(); // Close the drawer
@@ -384,7 +366,7 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
             : blog.groupName;
 
         return GestureDetector(
-          onTap: () => _goToBlog(blog),
+          onTap: () => _goToBlog(blog, _isLoggedIn, widget.userName),
           child: Container(
             decoration: BoxDecoration(
               color: AppColors.color1,
@@ -408,7 +390,7 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
                     children: [
                       Text(
                         blog.title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 24,
                           color: AppColors.color3,
                         ),
@@ -417,7 +399,7 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
                       const SizedBox(height: 10),
                       Text(
                         truncatedGroupName,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           color: AppColors.color3,
                         ),
@@ -434,8 +416,8 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
                         horizontal: 6.0, vertical: 4.0),
                     child: Text(
                       blog.category,
-                      style: const TextStyle(
-                        color: AppColors.color5,
+                      style: TextStyle(
+                        color: AppColors.color3,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                       ),
@@ -480,10 +462,10 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: AppColors.color3,
-          title: const Text(
+          backgroundColor: AppColors.color1,
+          title: Text(
             'Add Blog',
-            style: TextStyle(color: AppColors.color1),
+            style: TextStyle(color: AppColors.color3),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -491,33 +473,33 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
               TextField(
                 controller: titleController,
                 autofocus: true,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Blog Title',
-                  hintStyle: TextStyle(color: AppColors.color1),
+                  hintStyle: TextStyle(color: AppColors.color3),
                   enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.color1),
+                    borderSide: BorderSide(color: AppColors.color3),
                   ),
                   focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.color1),
+                    borderSide: BorderSide(color: AppColors.color3),
                   ),
                 ),
-                style: const TextStyle(color: AppColors.color1),
+                style: TextStyle(color: AppColors.color3),
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: contentController,
                 autofocus: true,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Blog Content',
-                  hintStyle: TextStyle(color: AppColors.color1),
+                  hintStyle: TextStyle(color: AppColors.color3),
                   enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.color1),
+                    borderSide: BorderSide(color: AppColors.color3),
                   ),
                   focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.color1),
+                    borderSide: BorderSide(color: AppColors.color3),
                   ),
                 ),
-                style: const TextStyle(color: AppColors.color1),
+                style: TextStyle(color: AppColors.color3),
               ),
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
@@ -535,19 +517,19 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
                     value: category,
                     child: Text(
                       category,
-                      style: const TextStyle(color: AppColors.color1),
+                      style: TextStyle(color: AppColors.color3),
                     ),
                   );
                 }).toList(),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.color1),
+                    borderSide: BorderSide(color: AppColors.color3),
                   ),
                   focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.color1),
+                    borderSide: BorderSide(color: AppColors.color3),
                   ),
                 ),
-                dropdownColor: AppColors.color3,
+                dropdownColor: AppColors.color2,
                 isExpanded: true,
               ),
               const SizedBox(height: 10),
@@ -566,16 +548,16 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
                     value: adventure.name,
                     child: Text(
                       adventure.name,
-                      style: const TextStyle(color: AppColors.color1),
+                      style: TextStyle(color: AppColors.color3),
                     ),
                   );
                 }).toList(),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.color1),
+                    borderSide: BorderSide(color: AppColors.color3),
                   ),
                   focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.color1),
+                    borderSide: BorderSide(color: AppColors.color3),
                   ),
                 ),
                 dropdownColor: AppColors.color3,
@@ -588,9 +570,9 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text(
+              child: Text(
                 'Cancel',
-                style: TextStyle(color: AppColors.color1),
+                style: TextStyle(color: AppColors.color3),
               ),
             ),
             TextButton(
@@ -620,9 +602,9 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
                   print('Error saving blog: $error');
                 }
               },
-              child: const Text(
+              child: Text(
                 'Add',
-                style: TextStyle(color: AppColors.color1),
+                style: TextStyle(color: AppColors.color3),
               ),
             ),
           ],
@@ -639,14 +621,14 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: AppColors.color3,
-          title: const Text(
+          title: Text(
             'Add Adventure',
             style: TextStyle(color: AppColors.color1),
           ),
           content: TextField(
             controller: nameController,
             autofocus: true,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               hintText: 'Adventure Name',
               hintStyle: TextStyle(color: AppColors.color1),
               enabledBorder: UnderlineInputBorder(
@@ -656,14 +638,14 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
                 borderSide: BorderSide(color: AppColors.color1),
               ),
             ),
-            style: const TextStyle(color: AppColors.color1),
+            style: TextStyle(color: AppColors.color1),
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text(
+              child: Text(
                 'Cancel',
                 style: TextStyle(color: AppColors.color1),
               ),
@@ -686,7 +668,7 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
 
                 Navigator.of(context).pop();
               },
-              child: const Text(
+              child: Text(
                 'Add',
                 style: TextStyle(color: AppColors.color1),
               ),
@@ -711,7 +693,7 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
 
         return GestureDetector(
           onTap: () {
-            // Your navigation code
+            _goToAdventureBlog(adventure);
           },
           child: Container(
             margin: const EdgeInsets.only(bottom: 10),
@@ -730,9 +712,9 @@ The trail ahead promised more discoveries, and we were eager to see what lay bey
             ),
             child: Text(
               adventure.name,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
-                color: AppColors.color5,
+                color: AppColors.color3,
               ),
             ),
           ),

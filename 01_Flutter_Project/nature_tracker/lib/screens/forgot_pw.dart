@@ -17,28 +17,7 @@ class _ForgotPWScreenState extends State<ForgotPWScreen> {
   final TextEditingController _passwordController = TextEditingController();
   String? _errorMessage;
 
-  void _login() {
-    final String username = _usernameController.text;
-    final String password = _passwordController.text;
-
-    // Validate credentials using the UserManager singleton
-    if (UserManager.instance.validateCredentials(username, password)) {
-      // Login successful, proceed to the next screen
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) =>
-              MainScreen(true, username), // Navigate to MainScreen
-        ),
-      );
-    } else {
-      // Login failed, clear the password and show an error message
-      setState(() {
-        _passwordController.clear();
-        _errorMessage = 'Wrong username or password. Please try again.';
-      });
-    }
-  }
-
+  void _sendEmail(String username) {}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,7 +50,7 @@ class _ForgotPWScreenState extends State<ForgotPWScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
+                      Text(
                         'Reset Password',
                         style: TextStyle(
                           fontSize: 24,
@@ -80,16 +59,14 @@ class _ForgotPWScreenState extends State<ForgotPWScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      // Form containing both the Username and Password fields
                       Form(
-                        key:
-                            _formKey, // Create a GlobalKey<FormState> _formKey to reference the form
+                        key: _formKey,
                         child: Column(
                           children: [
                             // Username Field
                             TextFormField(
                               controller: _usernameController,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 labelText: 'Username',
                                 hintText: 'Enter your username',
                                 hintStyle: TextStyle(color: AppColors.color2),
@@ -104,12 +81,12 @@ class _ForgotPWScreenState extends State<ForgotPWScreen> {
                                       color: AppColors
                                           .color3), // Border color when focused
                                 ),
-                                errorBorder: OutlineInputBorder(
+                                errorBorder: const OutlineInputBorder(
                                   borderSide: BorderSide(
                                       color: Colors
                                           .red), // Border color when there's an error
                                 ),
-                                focusedErrorBorder: OutlineInputBorder(
+                                focusedErrorBorder: const OutlineInputBorder(
                                   borderSide: BorderSide(
                                       color: Colors
                                           .red), // Border color when focused and there's an error
@@ -130,46 +107,6 @@ class _ForgotPWScreenState extends State<ForgotPWScreen> {
                               },
                             ),
                             const SizedBox(height: 10),
-                            // Password Field
-                            TextFormField(
-                              controller: _passwordController,
-                              obscureText: true,
-                              decoration: const InputDecoration(
-                                labelText: 'Password',
-                                hintText: 'Enter your password',
-                                hintStyle: TextStyle(color: AppColors.color2),
-                                labelStyle: TextStyle(color: AppColors.color3),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: AppColors
-                                          .color2), // Border color when not focused
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: AppColors
-                                          .color3), // Border color when focused
-                                ),
-                                errorBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors
-                                          .red), // Border color when there's an error
-                                ),
-                                focusedErrorBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors
-                                          .red), // Border color when focused and there's an error
-                                ),
-                              ),
-                              style: TextStyle(color: AppColors.color3),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Password cannot be empty';
-                                } else if (value.length < 6) {
-                                  return 'Password must be at least 6 characters long';
-                                }
-                                return null;
-                              },
-                            ),
                           ],
                         ),
                       ),
@@ -177,15 +114,15 @@ class _ForgotPWScreenState extends State<ForgotPWScreen> {
                         const SizedBox(height: 10),
                         Text(
                           _errorMessage!,
-                          style: TextStyle(
-                              color: const Color.fromARGB(232, 231, 93, 12)),
+                          style: const TextStyle(
+                              color: Color.fromARGB(232, 231, 93, 12)),
                         ),
                       ],
                       const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            _login();
+                            _sendEmail(_usernameController.text);
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -197,7 +134,7 @@ class _ForgotPWScreenState extends State<ForgotPWScreen> {
                           ),
                         ),
                         child: const Text(
-                          "Login",
+                          "Reset Password",
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,

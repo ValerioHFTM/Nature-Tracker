@@ -42,14 +42,13 @@ class CustomScaffold extends StatelessWidget {
                 centerTitle: true,
                 leading: showBackButton
                     ? IconButton(
-                        icon: const Icon(Icons.arrow_back,
-                            color: AppColors.color3),
+                        icon: Icon(Icons.arrow_back, color: AppColors.color3),
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
                       )
                     : null, // Show back button if required
-                iconTheme: const IconThemeData(color: AppColors.color3),
+                iconTheme: IconThemeData(color: AppColors.color3),
                 title: SizedBox(
                   height: 40,
                   child: Image.asset(
@@ -72,11 +71,11 @@ class CustomScaffold extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          const DrawerHeader(
+          DrawerHeader(
             decoration: BoxDecoration(
               color: AppColors.color1,
             ),
-            child: const Text(
+            child: Text(
               'Drawer Header',
               style: TextStyle(
                 color: AppColors.color3,

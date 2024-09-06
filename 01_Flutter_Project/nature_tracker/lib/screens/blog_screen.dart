@@ -6,6 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:nature_tracker/backend/blog_service.dart';
 import 'package:nature_tracker/models/app_colors.dart';
 import 'package:nature_tracker/models/my_blog.dart';
+import 'package:nature_tracker/models/user_data.dart';
+import 'package:nature_tracker/screens/main_screen.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:geolocator/geolocator.dart';
@@ -13,8 +15,14 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 class BlogScreen extends StatefulWidget {
-  const BlogScreen({super.key, required this.blog});
-  final MyBlog blog;
+  const BlogScreen(
+      {super.key,
+      required this.blog,
+      required this.status,
+      required this.user});
+  final MyBlog blog; // CHAT GPT isnt blog defined here?
+  final bool status;
+  final String user;
 
   @override
   _BlogScreenState createState() => _BlogScreenState();
@@ -171,6 +179,19 @@ class _BlogScreenState extends State<BlogScreen> {
     });
   }
 
+  void _delete(MyBlog blog) async {
+    setState(() {
+      _isMenuOpen = !_isMenuOpen;
+    });
+    await deleteBlog(blog);
+    await getBlogs();
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => MainScreen(widget.status, widget.user)),
+    );
+  }
+
   // Function to show the enlarged image in a dialog
   void _showImageDialog(BuildContext context, File image) {
     showDialog(
@@ -319,7 +340,7 @@ class _BlogScreenState extends State<BlogScreen> {
                 elevation: 6.0,
                 centerTitle: true,
                 leading: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: AppColors.color1),
+                  icon: Icon(Icons.arrow_back, color: AppColors.color1),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -578,8 +599,8 @@ class _BlogScreenState extends State<BlogScreen> {
                 padding: const EdgeInsets.all(10.0),
                 child: Center(
                   child: Text(
-                    widget.blog.title,
-                    style: const TextStyle(
+                    widget.blog.id,
+                    style: TextStyle(
                       color: AppColors.color1,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -639,6 +660,16 @@ class _BlogScreenState extends State<BlogScreen> {
                         onPressed: _toggleEditing,
                         child: Icon(
                           _isEditing ? Icons.save : Icons.edit,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      FloatingActionButton(
+                        backgroundColor: AppColors.color4,
+                        onPressed: () {
+                          _delete(widget.blog);
+                        }, // Chat GPTit does not know the blog
+                        child: const Icon(
+                          Icons.delete,
                         ),
                       ),
                       const SizedBox(width: 8),

@@ -98,7 +98,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 elevation: 6.0,
                 centerTitle: true,
                 leading: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: AppColors.color1),
+                  icon: Icon(Icons.arrow_back, color: AppColors.color1),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -138,7 +138,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         const SizedBox(height: 40),
-                                        const Text(
+                                        Text(
                                           'Register',
                                           style: TextStyle(
                                             fontSize: 24,
@@ -149,7 +149,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         const SizedBox(height: 20),
                                         TextFormField(
                                           controller: _usernameController,
-                                          decoration: const InputDecoration(
+                                          decoration: InputDecoration(
                                             labelText: 'Username',
                                             hintText: 'Enter your username',
                                             hintStyle: TextStyle(
@@ -164,17 +164,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                               borderSide: BorderSide(
                                                   color: AppColors.color3),
                                             ),
-                                            errorBorder: OutlineInputBorder(
+                                            errorBorder:
+                                                const OutlineInputBorder(
                                               borderSide:
                                                   BorderSide(color: Colors.red),
                                             ),
                                             focusedErrorBorder:
-                                                OutlineInputBorder(
+                                                const OutlineInputBorder(
                                               borderSide:
                                                   BorderSide(color: Colors.red),
                                             ),
                                           ),
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                               color: AppColors.color3),
                                           validator: (value) {
                                             final validCharacters =
@@ -196,7 +197,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           keyboardType:
                                               TextInputType.emailAddress,
                                           controller: _emailController,
-                                          decoration: const InputDecoration(
+                                          decoration: InputDecoration(
                                             labelText: 'Email',
                                             hintText: 'Enter your email',
                                             hintStyle: TextStyle(
@@ -211,17 +212,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                               borderSide: BorderSide(
                                                   color: AppColors.color3),
                                             ),
-                                            errorBorder: OutlineInputBorder(
+                                            errorBorder:
+                                                const OutlineInputBorder(
                                               borderSide:
                                                   BorderSide(color: Colors.red),
                                             ),
                                             focusedErrorBorder:
-                                                OutlineInputBorder(
+                                                const OutlineInputBorder(
                                               borderSide:
                                                   BorderSide(color: Colors.red),
                                             ),
                                           ),
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                               color: AppColors.color3),
                                           validator: (value) {
                                             if (value == null ||
@@ -239,7 +241,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         TextFormField(
                                           controller: _passwordController,
                                           obscureText: true,
-                                          decoration: const InputDecoration(
+                                          decoration: InputDecoration(
                                             labelText: 'Password',
                                             hintText: 'Enter your password',
                                             hintStyle: TextStyle(
@@ -254,17 +256,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                               borderSide: BorderSide(
                                                   color: AppColors.color3),
                                             ),
-                                            errorBorder: OutlineInputBorder(
+                                            errorBorder:
+                                                const OutlineInputBorder(
                                               borderSide:
                                                   BorderSide(color: Colors.red),
                                             ),
                                             focusedErrorBorder:
-                                                OutlineInputBorder(
+                                                const OutlineInputBorder(
                                               borderSide:
                                                   BorderSide(color: Colors.red),
                                             ),
                                           ),
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                               color: AppColors.color3),
                                           validator: (value) {
                                             if (value == null ||
@@ -281,7 +284,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           controller:
                                               _confirmPasswordController,
                                           obscureText: true,
-                                          decoration: const InputDecoration(
+                                          decoration: InputDecoration(
                                             labelText: 'Confirm Password',
                                             hintText: 'Confirm your password',
                                             hintStyle: TextStyle(
@@ -296,17 +299,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                               borderSide: BorderSide(
                                                   color: AppColors.color3),
                                             ),
-                                            errorBorder: OutlineInputBorder(
+                                            errorBorder:
+                                                const OutlineInputBorder(
                                               borderSide:
                                                   BorderSide(color: Colors.red),
                                             ),
                                             focusedErrorBorder:
-                                                OutlineInputBorder(
+                                                const OutlineInputBorder(
                                               borderSide:
                                                   BorderSide(color: Colors.red),
                                             ),
                                           ),
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                               color: AppColors.color3),
                                           validator: (value) {
                                             if (value == null ||
@@ -330,7 +334,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(8.0),
-                                              side: const BorderSide(
+                                              side: BorderSide(
                                                 color: AppColors
                                                     .color2, // Border color
                                                 width: 1.0, // Border width
