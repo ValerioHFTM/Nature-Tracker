@@ -19,6 +19,13 @@ class UserManager {
         .any((user) => user.username == username && user.password == password);
   }
 
+  String getEmail(String username) {
+    return _registeredUsers
+        .firstWhere((user) => user.username == username,
+            orElse: () => throw Exception('User not found'))
+        .email;
+  }
+
   // Public getter to access the list of registered users
   List<UserData> get registeredUsers => _registeredUsers;
 }

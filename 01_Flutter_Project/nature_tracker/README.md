@@ -124,3 +124,26 @@ The Content editing is activated again on the blogs and it PUTs the changed data
 
 
 
+# MD update
+
+what can the app do?
+
+A quick Summary on what works so far
+- **Add a Blog:** implemented
+- **Remove a Blog:** Had it but removed it. have to implement this again
+- **Edit a Blog:** implemented
+- **Like Button:** implemented
+- **Backend Integration:** implemented
+- **API Documentation:** canceled
+
+
+The app will also focus on hardware and sensors:
+
+- **Camera:** implemented
+- **Movement Sensor:** implemented
+- **Location Coordinates:** implemented
+- **Barometer:** canceled
+- **Battery:**	implemented
+- **Microphone:** canceled
+
+

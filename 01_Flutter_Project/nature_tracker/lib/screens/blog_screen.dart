@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:nature_tracker/backend/blog_service.dart';
 import 'package:nature_tracker/models/app_colors.dart';
 import 'package:nature_tracker/models/my_blog.dart';
-import 'package:nature_tracker/models/user_data.dart';
+
 import 'package:nature_tracker/screens/main_screen.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:permission_handler/permission_handler.dart';

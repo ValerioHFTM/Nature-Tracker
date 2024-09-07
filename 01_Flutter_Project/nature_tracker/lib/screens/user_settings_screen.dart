@@ -23,7 +23,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
   late TextEditingController _lastnameController;
   late TextEditingController _emailController;
   late TextEditingController _descriptionController;
-  late DateTime _age;
+  // late DateTime _age;
   late Gender _gender;
   List<String> _imageUrls = [];
 
@@ -36,7 +36,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
     _emailController = TextEditingController(text: widget.user?.email);
     _descriptionController =
         TextEditingController(text: widget.user?.description);
-    _age = widget.user!.age;
+    //_age = widget.user!.age;
     _gender = widget.user?.gender as Gender;
     _imageUrls = List.from(widget.user!.imageUrls);
   }
@@ -65,7 +65,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
           user.lastname = _lastnameController.text;
           user.email = _emailController.text;
           user.description = _descriptionController.text;
-          user.age = _age;
+          //user.age = _age;
           user.gender = _gender as Gender;
           user.imageUrls = _imageUrls;
 
@@ -95,15 +95,15 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
   Future<void> _selectDate(BuildContext context) async {
     final pickedDate = await showDatePicker(
       context: context,
-      initialDate: _age,
+      // initialDate: _age,
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     );
-    if (pickedDate != null && pickedDate != _age) {
+    /*if (pickedDate != null && pickedDate != _age) {
       setState(() {
         _age = pickedDate;
       });
-    }
+    }*/
   }
 
   @override
@@ -115,7 +115,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
           Positioned.fill(
             child: ColorFiltered(
               colorFilter: const ColorFilter.mode(
-                Color.fromARGB(24, 116, 142, 85), // Desired color
+                Color.fromARGB(23, 135, 217, 33), // Desired color
                 BlendMode.srcIn, // Blend mode to apply color
               ),
               child: Image.asset(
@@ -153,7 +153,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                       minHeight: 200.0,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.color1,
+                      color: AppColors.color2,
                       borderRadius: BorderRadius.circular(8.0),
                       boxShadow: [
                         BoxShadow(
@@ -293,7 +293,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                               ),
                             ),
                           const SizedBox(height: 10),
-                          if (_isEditing)
+                          /*if (_isEditing)
                             GestureDetector(
                               onTap: () => _selectDate(context),
                               child: InputDecorator(
@@ -316,7 +316,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                                 color: Colors.black,
                               ),
                             ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 10),*/
                           if (_isEditing)
                             TextFormField(
                               controller: _descriptionController,

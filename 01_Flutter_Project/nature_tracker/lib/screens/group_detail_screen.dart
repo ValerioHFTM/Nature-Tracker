@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nature_tracker/models/app_colors.dart';
 import 'package:nature_tracker/models/adventure.dart';
-import 'package:nature_tracker/models/my_blog.dart';
 
 class GroupDetailScreen extends StatefulWidget {
   const GroupDetailScreen({super.key, required this.group});
