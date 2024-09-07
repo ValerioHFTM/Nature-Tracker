@@ -1,14 +1,8 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+
 import 'package:nature_tracker/models/app_colors.dart';
-import 'package:pedometer/pedometer.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 
 import 'package:battery_plus/battery_plus.dart'; // Add the battery_plus package to your pubspec.yaml
 
@@ -18,10 +12,10 @@ class SettingsScreen extends StatefulWidget {
   });
 
   @override
-  _SettingsState createState() => _SettingsState();
+  SettingsState createState() => SettingsState();
 }
 
-class _SettingsState extends State<SettingsScreen> {
+class SettingsState extends State<SettingsScreen> {
   bool _isDarkMode = AppColors.isDarkMode;
   final Battery _battery = Battery();
   late StreamSubscription<BatteryState> _batterySubscription;
@@ -157,7 +151,7 @@ class _SettingsState extends State<SettingsScreen> {
                         // Expanded SingleChildScrollView
                         const Expanded(
                           child: SingleChildScrollView(
-                            padding: const EdgeInsets.all(16.0),
+                            padding: EdgeInsets.all(16.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [],

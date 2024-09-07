@@ -163,6 +163,23 @@ List<Adventure> getInitializedAdventure() {
   return initializedAdventure;
 }
 
+Future<bool> getDarkMode() async {
+  final url = Uri.https(
+    'nature-tracker-vbot-default-rtdb.europe-west1.firebasedatabase.app',
+    'DarkMode.json',
+  );
+
+  final response = await http.get(url);
+
+  if (response.statusCode == 200) {
+    final status = json.decode(response.body);
+
+    return status;
+  } else {
+    throw Exception('Failed to load adventures');
+  }
+}
+
 //Put Requests
 //##############################################################################
 

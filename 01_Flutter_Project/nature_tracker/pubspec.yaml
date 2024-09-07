@@ -47,10 +47,10 @@ flutter:
     - assets/images/LogoHintergrundSchwarz-04.png
     - assets/images/Icon_White.png
     - assets/images/Logo_Black_NatureTracker_Long.png
-  fonts:
-    - family: FrederickaTheGreat
-      fonts:
-        - asset: assets/fonts/FrederickaTheGreat-Regular.ttf
+  #fonts:
+   # - family: FrederickaTheGreat
+   #   fonts:
+   #     - asset: assets/fonts/FrederickaTheGreat-Regular.ttf
 
 flutter_icons:
   android: true

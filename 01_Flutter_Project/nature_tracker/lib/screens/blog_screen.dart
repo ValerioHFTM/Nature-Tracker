@@ -76,6 +76,7 @@ class _BlogScreenState extends State<BlogScreen> {
   Future<void> _requestLocationPermissions() async {
     final permissionStatus = await Permission.location.request();
     if (!permissionStatus.isGranted) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Location permission is required.'),
@@ -87,6 +88,7 @@ class _BlogScreenState extends State<BlogScreen> {
   Future<void> _requestPermissions() async {
     final status = await Permission.activityRecognition.request();
     if (!status.isGranted) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Activity recognition permission is required.'),
@@ -126,19 +128,15 @@ class _BlogScreenState extends State<BlogScreen> {
           });
         },
         onError: (error) {
-          print('Error in step count stream: $error');
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Error accessing step count data.'),
             ),
           );
         },
-        onDone: () {
-          print('Step count stream closed');
-        },
+        onDone: () {},
       );
     } catch (e) {
-      print('Exception caught: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Failed to start step count tracking.'),
@@ -186,6 +184,7 @@ class _BlogScreenState extends State<BlogScreen> {
     await deleteBlog(blog);
     await getBlogs();
     await Navigator.push(
+      // ignore: use_build_context_synchronously
       context,
       MaterialPageRoute(
           builder: (context) => MainScreen(widget.status, widget.user)),
@@ -228,6 +227,7 @@ class _BlogScreenState extends State<BlogScreen> {
   Future<void> _getLocation() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Location services are disabled.'),
@@ -238,6 +238,7 @@ class _BlogScreenState extends State<BlogScreen> {
 
     await _requestLocationPermissions(); // Ensure permissions are requested
     Position position = await Geolocator.getCurrentPosition(
+      // ignore: deprecated_member_use
       desiredAccuracy: LocationAccuracy.high,
     );
 
@@ -274,12 +275,10 @@ class _BlogScreenState extends State<BlogScreen> {
                       height: 80.0,
                       point: LatLng(_currentPosition!.latitude,
                           _currentPosition!.longitude),
-                      builder: (ctx) => Container(
-                        child: const Icon(
-                          Icons.location_on,
-                          color: Colors.red,
-                          size: 40.0,
-                        ),
+                      builder: (ctx) => const Icon(
+                        Icons.location_on,
+                        color: Colors.red,
+                        size: 40.0,
                       ),
                     ),
                   ],
@@ -294,7 +293,7 @@ class _BlogScreenState extends State<BlogScreen> {
 
   @override
   Widget build(BuildContext context) {
-    List<String> _splitContent(String content, int maxSentences) {
+    List<String> splitContent(String content, int maxSentences) {
       final sentences = content.split(RegExp(r'(?<=[.!?])\s+'));
       final chunks = <String>[];
       for (var i = 0; i < sentences.length; i += maxSentences) {
@@ -310,7 +309,7 @@ class _BlogScreenState extends State<BlogScreen> {
       return chunks;
     }
 
-    final contentChunks = _splitContent(widget.blog.content, 4);
+    final contentChunks = splitContent(widget.blog.content, 4);
     final firstImage = _imageUrls.isNotEmpty ? File(_imageUrls.first) : null;
     final lastImage = _imageUrls.length > 1 ? File(_imageUrls.last) : null;
     final middleImages = _imageUrls.length > 2
@@ -342,6 +341,9 @@ class _BlogScreenState extends State<BlogScreen> {
                 leading: IconButton(
                   icon: Icon(Icons.arrow_back, color: AppColors.color1),
                   onPressed: () {
+                    setState(() {
+                      if (_isMenuOpen == true) _isMenuOpen = !_isMenuOpen;
+                    });
                     Navigator.of(context).pop();
                   },
                 ),
@@ -362,7 +364,7 @@ class _BlogScreenState extends State<BlogScreen> {
                       minHeight: 200.0,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.color1,
+                      color: AppColors.color5,
                       borderRadius: BorderRadius.circular(8.0),
                       boxShadow: [
                         BoxShadow(
@@ -532,7 +534,7 @@ class _BlogScreenState extends State<BlogScreen> {
                               color: Colors.black,
                             ),
                           ),
-                          const SizedBox(height: 10),
+                          /*const SizedBox(height: 10),
                           Text(
                             'Altitude: ${widget.blog.altitude} meters',
                             style: const TextStyle(
@@ -547,7 +549,7 @@ class _BlogScreenState extends State<BlogScreen> {
                               fontSize: 16.0,
                               color: Colors.black,
                             ),
-                          ),
+                          ),*/
                           const SizedBox(height: 10),
 
                           // Place the FlutterMap here
@@ -575,12 +577,10 @@ class _BlogScreenState extends State<BlogScreen> {
                                         point: LatLng(
                                             _currentPosition!.latitude,
                                             _currentPosition!.longitude),
-                                        builder: (ctx) => Container(
-                                          child: const Icon(
-                                            Icons.location_on,
-                                            color: Colors.red,
-                                            size: 40.0,
-                                          ),
+                                        builder: (ctx) => const Icon(
+                                          Icons.location_on,
+                                          color: Colors.red,
+                                          size: 40.0,
                                         ),
                                       ),
                                     ],
@@ -599,7 +599,7 @@ class _BlogScreenState extends State<BlogScreen> {
                 padding: const EdgeInsets.all(10.0),
                 child: Center(
                   child: Text(
-                    widget.blog.id,
+                    widget.blog.groupName,
                     style: TextStyle(
                       color: AppColors.color1,
                       fontSize: 18,

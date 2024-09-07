@@ -34,62 +34,38 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  late Timer _timer;
   int _selectedIndex = 0;
-  final List<MyBlog> _myBlogs = [];
+  List<MyBlog> _myBlogs = [];
   final List<String> _categories = ['Hike', 'Overnighter', 'Nature', 'Travel'];
   late List<Adventure> _adventures;
   late List<UserData> _users;
   late List<MyBlog> _blogs;
   late bool _isLoggedIn;
-
   late UserData? _currentUser;
 
   @override
   void initState() {
     super.initState();
     _initializeData();
-    _initializeDataFuture();
-    _startTimer();
+    _fetchBlogs();
   }
 
-  void _startTimer() {
-    _timer = Timer.periodic(Duration(milliseconds: 200), (Timer timer) {
-      _updateState();
-    });
-  }
-
-  void _updateState() {
-    // Example state update
-    setState(() {
-      _initializeDataFuture();
-    });
-  }
-
-  // Method to initialize all data
+  // Method to initialize all data (synchronous operations)
   void _initializeData() {
     _initializeAdventures();
     _initializeUsers();
-    _initializeBlogs();
     _checkLoggedInUser();
   }
 
-  Future<void> _initializeDataFuture() async {
+  // Asynchronous method to fetch blogs
+  Future<void> _fetchBlogs() async {
     try {
-      // Fetch adventures and blogs
-      await getAdventures();
-      await getBlogs();
-
-      // Fetch and update users
-      final users = await getUsers(); // Await the result here
-      for (var user in users) {
-        UserManager.instance.addUser(user);
-      }
-
-      initState();
+      List<MyBlog> temp = await getBlogs();
+      setState(() {
+        _myBlogs = temp;
+      });
     } catch (e) {
-      // Handle error (e.g., show a message to the user)
-      print('Failed to initialize data: $e');
+      print('Failed to fetch blogs: $e');
     }
   }
 
@@ -103,17 +79,10 @@ class _MainScreenState extends State<MainScreen> {
     _users = getInitializeduser();
   }
 
-  // Initialize Blogs
-  void _initializeBlogs() {
-    _blogs = getInitializedBlogs();
-    _myBlogs.addAll(_blogs);
-  }
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     refreshBlogs();
-    setState(() {});
   }
 
   Future<void> refreshBlogs() async {
@@ -207,12 +176,12 @@ class _MainScreenState extends State<MainScreen> {
                     ? _buildOverview()
                     : _buildAdventure(context),
               ),
-              //if (_isLoggedIn)
-              FloatingActionButtonWidget(
-                selectedIndex: _selectedIndex,
-                showAddBlogDialog: _showAddBlogDialog,
-                showAddGroupDialog: _showAddGroupDialog,
-              ),
+              if (_isLoggedIn)
+                FloatingActionButtonWidget(
+                  selectedIndex: _selectedIndex,
+                  showAddBlogDialog: _showAddBlogDialog,
+                  showAddGroupDialog: _showAddGroupDialog,
+                ),
               BottomNavigationBar(
                 currentIndex: _selectedIndex,
                 onTap: _onItemTapped,
@@ -560,7 +529,7 @@ class _MainScreenState extends State<MainScreen> {
                     borderSide: BorderSide(color: AppColors.color3),
                   ),
                 ),
-                dropdownColor: AppColors.color3,
+                dropdownColor: AppColors.color2,
                 isExpanded: true,
               ),
             ],
@@ -591,8 +560,9 @@ class _MainScreenState extends State<MainScreen> {
 
                 try {
                   await saveBlog(newBlog); // Ensure blog is saved
+                  List<MyBlog> temp = await getBlogs();
                   setState(() {
-                    _myBlogs.add(newBlog);
+                    _myBlogs = temp;
                     // Optionally, update _adventures or other state if necessary
                   });
 

@@ -1,24 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:nature_tracker/backend/blog_service.dart';
-import 'dart:convert';
-
 import 'package:nature_tracker/models/app_colors.dart';
-import 'package:nature_tracker/models/adventure.dart';
-import 'package:nature_tracker/models/my_blog.dart';
-import 'package:nature_tracker/models/user_data.dart';
 import 'package:nature_tracker/models/user_manager.dart';
-
 import 'package:nature_tracker/screens/main_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  SplashScreenState createState() => SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
@@ -48,7 +41,7 @@ class _SplashScreenState extends State<SplashScreen> {
       });
     } catch (e) {
       // Handle error (e.g., show a message to the user)
-      print('Failed to initialize data: $e');
+      //print('Failed to initialize data: $e');
     }
   }
 
