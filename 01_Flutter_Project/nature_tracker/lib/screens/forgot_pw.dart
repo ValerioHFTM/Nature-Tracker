@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:nature_tracker/models/app_colors.dart';
-import 'package:nature_tracker/models/user_manager.dart';
-import 'package:nature_tracker/screens/main_screen.dart';
 import 'package:nature_tracker/screens/register_screen.dart';
 
 class ForgotPWScreen extends StatefulWidget {
@@ -14,10 +12,11 @@ class ForgotPWScreen extends StatefulWidget {
 class _ForgotPWScreenState extends State<ForgotPWScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
   String? _errorMessage;
 
-  void _sendEmail(String username) {}
+  void _sendEmail(String username) {
+    //no time to implement this... :(
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

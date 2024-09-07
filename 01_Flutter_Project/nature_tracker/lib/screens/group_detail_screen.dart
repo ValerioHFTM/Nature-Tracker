@@ -9,10 +9,10 @@ class GroupDetailScreen extends StatefulWidget {
   final Adventure group;
 
   @override
-  _GroupDetailScreenState createState() => _GroupDetailScreenState();
+  GroupDetailScreenState createState() => GroupDetailScreenState();
 }
 
-class _GroupDetailScreenState extends State<GroupDetailScreen> {
+class GroupDetailScreenState extends State<GroupDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

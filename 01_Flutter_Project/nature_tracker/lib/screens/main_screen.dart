@@ -1,8 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 import 'package:nature_tracker/backend/blog_service.dart';
 
@@ -10,7 +8,6 @@ import 'package:nature_tracker/models/app_colors.dart';
 import 'package:nature_tracker/models/adventure.dart';
 import 'package:nature_tracker/models/my_blog.dart';
 import 'package:nature_tracker/models/user_data.dart';
-import 'package:nature_tracker/models/user_manager.dart';
 
 import 'package:nature_tracker/widgets/floating_action_button_widget.dart';
 
@@ -30,16 +27,15 @@ class MainScreen extends StatefulWidget {
   static bool? gotPopped;
 
   @override
-  _MainScreenState createState() => _MainScreenState();
+  MainScreenState createState() => MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   List<MyBlog> _myBlogs = [];
   final List<String> _categories = ['Hike', 'Overnighter', 'Nature', 'Travel'];
   late List<Adventure> _adventures;
   late List<UserData> _users;
-  late List<MyBlog> _blogs;
   late bool _isLoggedIn;
   late UserData? _currentUser;
 
@@ -87,10 +83,7 @@ class _MainScreenState extends State<MainScreen> {
 
   Future<void> refreshBlogs() async {
     try {
-      final blogs = await getBlogs();
-      setState(() {
-        _blogs = blogs;
-      });
+      setState(() {});
     } catch (error) {
       print('Error refreshing blogs: $error');
     }
